@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+jinja2
+python-multipart
+requests
+pyodbc
+pandas
+numpy
+scipy
+shapely
+alphashape
+itsdangerous
+python-dotenv
+pydantic_settings

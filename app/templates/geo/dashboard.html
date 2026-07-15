@@ -1,0 +1,136 @@
+{% extends 'base/dashboard_layout.html' %}
+
+{% block title %}
+  Dashboard
+{% endblock %}
+
+{% block content %}
+  <style>
+    .territory-wrapper {
+      margin: 15px;
+    }
+    
+    .territory-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    
+    .territory-header {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      background: #e9f5f1;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      color: #1d9e75;
+    }
+    
+    .territory-row {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      background: white;
+      padding: 10px;
+      margin-top: 6px;
+      border-radius: 8px;
+    }
+
+    .visit-btn {
+
+  background: #2f9a97;
+
+  color: white;
+
+  border: none;
+
+  border-radius: 6px;
+
+  padding: 6px 12px;
+
+  cursor: pointer;
+
+  font-size: 13px;
+}
+
+.visit-btn:hover {
+
+  background: #258481;
+}
+
+.route-legend {
+
+  background: white;
+
+  padding: 12px;
+
+  border-radius: 8px;
+
+  box-shadow:
+    0 2px 12px
+    rgba(0,0,0,0.15);
+
+  min-width: 180px;
+
+  max-height: 250px;
+
+  overflow-y: auto;
+
+  font-size: 13px;
+}
+
+.legend-title {
+
+  font-weight: 700;
+
+  margin-bottom: 8px;
+
+  color: #333;
+}
+
+.legend-item {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 6px;
+}
+
+.legend-color {
+
+  width: 14px;
+
+  height: 14px;
+
+  border-radius: 3px;
+
+  display: inline-block;
+}
+
+
+  </style>
+
+  <div class="territory-wrapper">
+    <div id="territoryHeader" class="territory-header">
+      <div>State</div>
+    </div>
+
+    <div id="territoryContainer"></div>
+
+    <div id="emptyState" class="empty">No Territory found for selected State</div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/static/js/map.js"></script>
+
+  <script src="/static/js/voronoi.js"></script>
+
+  <script src="/static/js/filters.js"></script>
+
+  <script src="/static/js/routes.js"></script>
+
+  <script src="/static/js/dashboard.js"></script>
+{% endblock %}

@@ -1,0 +1,116 @@
+# ==========================
+# Python
+# ==========================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ==========================
+# Virtual Environment
+# ==========================
+
+venv/
+.venv/
+env/
+ENV/
+
+# ==========================
+# Environment Variables
+# ==========================
+
+.env
+.env.*
+
+# ==========================
+# IDE
+# ==========================
+
+.vscode/
+.idea/
+
+# ==========================
+# OS Files
+# ==========================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==========================
+# Logs
+# ==========================
+
+*.log
+logs/
+log/
+
+# ==========================
+# Python Tool Cache
+# ==========================
+
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ==========================
+# Build
+# ==========================
+
+build/
+dist/
+*.egg-info/
+
+# ==========================
+# Uploaded Files
+# ==========================
+
+uploads/
+temp/
+tmp/
+
+# ==========================
+# Generated GeoJSON (Optional)
+# Uncomment only if generated at runtime
+# ==========================
+
+# static/geojson/generated/
+# *.geojson
+
+# ==========================
+# Jupyter
+# ==========================
+
+.ipynb_checkpoints/
+
+# ==========================
+# SQLite (if ever used)
+# ==========================
+
+*.sqlite3
+*.db
+
+# ==========================
+# Compiled Files
+# ==========================
+
+*.pyc
+*.pyo
+*.pyd
+
+# ==========================
+# Secrets / Certificates
+# ==========================
+
+*.pem
+*.key
+*.crt
+*.pfx
+
+# ==========================
+# Excel Temporary Files
+# ==========================
+
+~$*.xlsx
+~$*.xls

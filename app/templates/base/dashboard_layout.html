@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>
+  {% block title %}Dashboard{% endblock %}
+</title>
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet/dist/leaflet.css"
+/>
+
+<style>
+
+body {
+  margin: 0;
+  background: #f4f6f9;
+  font-family: 'Segoe UI';
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.header {
+
+  background:
+    linear-gradient(
+      135deg,
+      #1D9E75,
+      #3a7bd5
+    );
+
+  color: white;
+
+  padding: 15px 25px;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+}
+
+/* =========================
+   FILTERS
+========================= */
+
+.filters {
+
+  display: flex;
+
+  gap: 12px;
+
+  padding: 15px;
+
+  background: white;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  box-shadow:
+    0 2px 10px rgba(0,0,0,0.04);
+}
+
+/* =========================
+   DEFAULT DROPDOWNS
+========================= */
+
+.filters select {
+
+  min-width: 180px;
+
+  width: auto;
+
+  max-width: 300px;
+
+  height: 40px;
+
+  padding: 0 12px;
+
+  border-radius: 8px;
+
+  border: 1px solid #ccc;
+
+  background: white;
+
+  font-size: 14px;
+
+  box-sizing: border-box;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.clear-btn {
+
+  height: 40px;
+
+  padding: 0 16px;
+
+  background: #ff4d4d;
+
+  color: white;
+
+  border: none;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.clear-btn:hover {
+  opacity: 0.92;
+}
+
+/* =========================
+   MAP
+========================= */
+
+#map {
+
+  height: 50vh;
+
+  margin: 15px;
+
+  border-radius: 12px;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 4px 16px rgba(0,0,0,0.08);
+}
+
+/* =========================
+   MULTI BLOCK DROPDOWN
+========================= */
+
+.multi-block-wrapper {
+
+  position: relative;
+
+  min-width: 180px;
+
+  width: fit-content;
+
+  max-width: 300px;
+}
+/* =========================
+   MULTI BLOCK BUTTON
+========================= */
+
+.multi-block-btn {
+
+  min-width: 180px;
+
+  width: fit-content;
+
+  max-width: 300px;
+
+  height: 40px;
+
+  padding: 0 12px;
+
+  border-radius: 8px;
+
+  border: 1px solid #ccc;
+
+  background: white;
+
+  cursor: pointer;
+
+  text-align: left;
+
+  font-size: 14px;
+
+  box-sizing: border-box;
+
+  white-space: nowrap;
+}
+
+.multi-block-btn:hover {
+  opacity: 0.92;
+}
+
+/* =========================
+   DROPDOWN PANEL
+========================= */
+
+.multi-block-panel {
+
+  display: none;
+
+  position: absolute;
+
+  top: calc(100% + 8px);
+
+  left: 0;
+
+  width: 100%;
+
+  max-width: 90vw;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 12px 32px rgba(0,0,0,0.12);
+
+  z-index: 9999;
+
+  overflow: hidden;
+}
+
+.multi-block-panel.active {
+  display: block;
+}
+
+
+
+/* =========================
+   BLOCK LIST
+========================= */
+
+#multiBlockList {
+
+  height: 220px;
+
+  overflow-y: auto;
+
+  padding: 12px;
+}
+/* =========================
+   BLOCK ITEM
+========================= */
+
+.multi-block-item {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 10px 14px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition: all 0.18s ease;
+
+  margin-bottom: 6px;
+
+  background: #fafafa;
+
+  border: 1px solid transparent;
+}
+
+.multi-block-item:hover {
+
+  background: #f3f4f6;
+
+  transform: translateY(-1px);
+}
+
+.multi-block-item.selected {
+
+  background: #e0f2fe;
+
+  border-color: #38bdf8;
+}
+
+.multi-block-item input[type="checkbox"] {
+
+  width: 18px;
+
+  height: 18px;
+
+  cursor: pointer;
+
+  flex-shrink: 0;
+}
+
+.multi-block-item label {
+
+  flex: 1;
+
+  cursor: pointer;
+
+  font-size: 15px;
+
+  font-weight: 500;
+
+  color: #1f2937;
+
+  margin: 0;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+
+.multi-block-actions {
+
+  padding: 14px;
+
+  border-top: 1px solid #eee;
+
+  background: white;
+
+  position: sticky;
+
+  bottom: 0;
+}
+
+/* =========================
+   APPLY BUTTON
+========================= */
+
+.apply-btn {
+
+  width: calc(100% - 28px);
+
+  margin: 14px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: #2f9a97;
+
+  color: #ffffff;
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  padding: 12px;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.apply-btn:hover {
+
+  background: #258481;
+
+  transform: translateY(-1px);
+}
+
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters select,
+  .multi-block-btn,
+  .clear-btn {
+    width: 100%;
+  }
+
+  .multi-block-panel {
+    width: 100%;
+  }
+}
+/* =========================
+   VATIKA LABELS
+========================= */
+
+
+.vatika-label {
+
+  background: transparent !important;
+
+  border: none !important;
+
+  box-shadow: none !important;
+
+  color: #1f2937;
+
+  font-size: 11px;
+
+  font-weight: 500;
+
+  text-shadow:
+      0 0 2px #fff,
+      0 0 4px #fff,
+      0 0 6px #fff;
+
+  white-space: nowrap;
+
+  font-family: "Segoe UI", sans-serif;
+}
+
+.vatika-label::before {
+
+  display: none !important;
+}
+#multiBlockList::-webkit-scrollbar {
+
+  width: 8px;
+}
+
+#multiBlockList::-webkit-scrollbar-track {
+
+  background: #f3f4f6;
+
+  border-radius: 10px;
+}
+
+#multiBlockList::-webkit-scrollbar-thumb {
+
+  background: #cbd5e1;
+
+  border-radius: 10px;
+}
+
+#multiBlockList::-webkit-scrollbar-thumb:hover {
+
+  background: #94a3b8;
+}
+
+/* =========================
+   VATIKA LEGEND
+========================= */
+
+.vatika-legend {
+
+  background: white;
+
+  padding: 12px 14px;
+
+  border-radius: 10px;
+
+  box-shadow:
+    0 2px 10px
+    rgba(0,0,0,0.15);
+
+  font-size: 13px;
+
+  line-height: 1.5;
+
+  min-width: 150px;
+}
+
+.legend-title {
+
+  font-weight: 600;
+
+  margin-bottom: 8px;
+
+  color: #2c3e50;
+}
+
+.legend-item {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 6px;
+}
+
+.legend-color {
+
+  width: 14px;
+
+  height: 14px;
+
+  border-radius: 3px;
+
+  display: inline-block;
+}
+
+.legend-color.active {
+
+  background: #1D9E75;
+}
+
+.legend-color.virtual {
+
+  background: #ff7800;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- =========================
+     HEADER
+========================= -->
+
+<div class="header">
+
+  <div>
+    Brahmakamal Dashboard
+  </div>
+
+  <div>
+    Welcome,
+    {{ user.first_name if user else 'User' }}
+  </div>
+
+</div>
+
+
+<!-- =========================
+     FILTERS
+========================= -->
+
+<div class="filters">
+
+  <!-- STATE -->
+  <select id="state">
+
+    <option value="">
+      Select State
+    </option>
+
+  </select>
+
+
+  <!-- DISTRICT -->
+  <select
+    id="district"
+    onchange="handleDistrictChange(this)"
+  >
+
+    <option value="">
+      Select District
+    </option>
+
+  </select>
+
+
+  <!-- MULTI BLOCK SELECT -->
+  <div class="multi-block-wrapper">
+
+    <!-- BUTTON -->
+    <button
+      type="button"
+      id="multiBlockBtn"
+      class="multi-block-btn"
+    >
+
+      Select Blocks
+
+    </button>
+
+
+    <!-- PANEL -->
+    <div
+      id="multiBlockPanel"
+      class="multi-block-panel"
+    >
+
+      <!-- SEARCH -->
+
+
+      <!-- BLOCK CHECKBOX LIST -->
+      <div id="multiBlockList">
+      </div>
+
+
+      <!-- ACTIONS -->
+      <div class="multi-block-actions">
+
+        <button
+          type="button"
+          id="applyMultiBlocks"
+          class="apply-btn"
+        >
+
+          Apply
+
+        </button>
+
+
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- VIEW TYPE -->
+  <select id="viewType">
+
+    <option value="">
+      Select View
+    </option>
+
+    <option value="vatika">
+      Vatika
+    </option>
+
+    <option value="routes">
+      Routes
+    </option>
+
+  </select>
+
+
+  <!-- RESET -->
+  <button
+    class="clear-btn"
+    onclick="resetFilters()"
+  >
+
+    Clear
+
+  </button>
+
+</div>
+
+
+<!-- =========================
+     MAP
+========================= -->
+
+<div id="map"></div>
+
+
+<!-- =========================
+     CHILD CONTENT
+========================= -->
+
+{% block content %}
+{% endblock %}
+
+
+<!-- =========================
+     LEAFLET
+========================= -->
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+
+<!-- =========================
+     MAP INIT
+========================= -->
+
+<script>
+
+let map;
+let indiaLayer;
+
+function initMap() {
+
+  if (map) return;
+
+  map = L.map('map')
+    .setView([22.5, 79], 8);
+
+  L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+  ).addTo(map);
+
+  fetch(
+    `/static/geojson/india.json?v=${Date.now()}`
+  )
+
+    .then(res => res.json())
+
+    .then(data => {
+
+      indiaLayer = L.geoJSON(
+        data,
+        {
+
+          style: {
+
+            color: "#35858E",
+
+            weight: 2,
+
+            fillColor: "#1D9E75",
+
+            fillOpacity: 0.08
+          }
+
+        }
+
+      ).addTo(map);
+
+      map.fitBounds(
+        indiaLayer.getBounds()
+      );
+
+    });
+}
+
+document.addEventListener(
+  "DOMContentLoaded",
+
+  function () {
+
+    initMap();
+  }
+);
+
+</script>
+
+
+<!-- =========================
+     CHILD SCRIPTS
+========================= -->
+
+{% block scripts %}
+{% endblock %}
+
+</body>
+</html>
