@@ -1,24 +1,18 @@
-
-/* =========================
-   LABEL  / LEGEND  SETTINGS
-========================= */
-
 const VATIKA_LABEL_ZOOM = 12;
+
 let vatikaLegend = null;
 
+
 /* =========================
-   UPDATE LABEL VISIBILITY
+   VATIKA LABELS
 ========================= */
 
 function updateVatikaLabels() {
 
-  if (!voronoiLayer || !map) {
-    return;
-  }
+  if (!voronoiLayer || !map) return;
 
   const showLabels =
-    map.getZoom() >=
-    VATIKA_LABEL_ZOOM;
+    map.getZoom() >= VATIKA_LABEL_ZOOM;
 
   voronoiLayer.eachLayer(
     function (layer) {
@@ -26,35 +20,26 @@ function updateVatikaLabels() {
       const tooltip =
         layer.getTooltip();
 
-      if (!tooltip) {
-        return;
-      }
+      if (!tooltip) return;
 
       if (showLabels) {
-
         layer.openTooltip();
-
       } else {
-
         layer.closeTooltip();
       }
+
     }
   );
 }
 
 
 /* =========================
-   ADD VATIKA LEGEND
+   VATIKA LEGEND
 ========================= */
 
 function addVatikaLegend() {
 
-  if (
-    vatikaLegend ||
-    !map
-  ) {
-    return;
-  }
+  if (vatikaLegend || !map) return;
 
   vatikaLegend =
     L.control({
@@ -77,23 +62,13 @@ function addVatikaLegend() {
         </div>
 
         <div class="legend-item">
-
-          <span
-            class="legend-color active"
-          ></span>
-
+          <span class="legend-color active"></span>
           Active Vatika's
-
         </div>
 
         <div class="legend-item">
-
-          <span
-            class="legend-color virtual"
-          ></span>
-
+          <span class="legend-color virtual"></span>
           Virtual Vatika's
-
         </div>
 
       `;
@@ -101,9 +76,7 @@ function addVatikaLegend() {
       return div;
     };
 
-  vatikaLegend.addTo(
-    map
-  );
+  vatikaLegend.addTo(map);
 }
 
 
@@ -113,10 +86,7 @@ function addVatikaLegend() {
 
 function removeVatikaLegend() {
 
-  if (
-    vatikaLegend &&
-    map
-  ) {
+  if (vatikaLegend && map) {
 
     map.removeControl(
       vatikaLegend
@@ -132,11 +102,11 @@ function removeVatikaLegend() {
 ========================= */
 
 function renderVoronoiLayer(
-  geojson
+  geojson,
+  physicalOnly = false
 ) {
 
   clearVoronoiLayer();
-
   clearVatikaBoundary();
 
   if (
@@ -151,6 +121,7 @@ function renderVoronoiLayer(
 
     return;
   }
+
 
   /* =========================
      SEPARATE FEATURES
@@ -169,135 +140,234 @@ function renderVoronoiLayer(
         "boundary"
     );
 
+
   /* =========================
-     RENDER OPERATIONAL BOUNDARY
+     NORMAL VATIKA BOUNDARY
+     
+     In Physical Vatika mode
+     we hide the overall boundary.
   ========================= */
 
-  vatikaBoundaryLayer =
+  if (!physicalOnly) {
+
+    vatikaBoundaryLayer =
+      L.geoJSON(
+        boundaryFeatures,
+        {
+          style: {
+            color: "#004d40",
+            weight: 4,
+            fillOpacity: 0,
+            dashArray: "8 6"
+          }
+        }
+      ).addTo(map);
+
+  }
+
+
+  /* =========================
+     VORONOI LAYER
+  ========================= */
+
+  voronoiLayer =
     L.geoJSON(
-      boundaryFeatures,
+      polygonFeatures,
       {
 
-        style: {
+        style:
+          function (feature) {
 
-          color: "#004d40",
+            const isPhysical =
+              Number(
+                feature.properties.is_physical
+              ) === 1;
 
-          weight: 4,
 
-          fillOpacity: 0,
+            /*
+              PHYSICAL VATIKA MODE
 
-          dashArray: "8 6"
-        }
+              Physical:
+                Green / visible
 
-      }
+              Virtual:
+                Completely transparent
+            */
 
-    ).addTo(map);
+            if (physicalOnly) {
 
-  /* =========================
-     RENDER VORONOI POLYGONS
-  ========================= */
+              if (isPhysical) {
 
-  voronoiLayer = L.geoJSON(
+                return {
+                  color: "#1D9E75",
+                  weight: 2,
+                  opacity: 1,
+                  fillColor: "#1D9E75",
+                  fillOpacity: 0.35
+                };
 
-    polygonFeatures,
+              }
 
-    {
-
-      style: function (
-        feature
-      ) {
-
-        const isPhysical =
-          feature.properties.is_physical;
-
-        return {
-
-          color:
-            isPhysical === 1
-              ? "#1D9E75"
-              : "#ff7800",
-
-          weight: 2,
-
-          fillColor:
-            isPhysical === 1
-              ? "#1D9E75"
-              : "#ff7800",
-
-          fillOpacity: 0.35
-        };
-      },
-
-      onEachFeature: function (
-        feature,
-        layer
-      ) {
-
-        /* =========================
-           POPUP
-        ========================= */
-
-        layer.bindPopup(`
-
-          <b>Vatika:</b>
-          ${feature.properties.vatika_name}
-
-          <br>
-
-          <b>Village:</b>
-          ${feature.properties.village_name}
-
-          <br>
-
-          <b>Households:</b>
-          ${feature.properties.households}
-
-        `);
-
-        /* =========================
-           VATIKA LABEL
-        ========================= */
-
-        if (
-          feature.properties.vatika_name
-        ) {
-
-          layer.bindTooltip(
-
-            feature.properties.vatika_name,
-
-            {
-
-              permanent: true,
-
-              direction: "center",
-
-              className:
-                "vatika-label"
+              return {
+                color: "transparent",
+                weight: 0,
+                opacity: 0,
+                fillColor: "transparent",
+                fillOpacity: 0
+              };
 
             }
 
-          );
+
+            /*
+              NORMAL VATIKA MODE
+
+              Existing behavior:
+                Physical = Green
+                Virtual  = Orange
+            */
+
+            return {
+
+              color:
+                isPhysical
+                  ? "#1D9E75"
+                  : "#ff7800",
+
+              weight: 2,
+
+              fillColor:
+                isPhysical
+                  ? "#1D9E75"
+                  : "#ff7800",
+
+              fillOpacity: 0.35
+
+            };
+
+          },
+
+
+        onEachFeature:
+  function (
+    feature,
+    layer
+  ) {
+
+    const isPhysical =
+      Number(
+        feature.properties.is_physical
+      ) === 1;
+
+    /*
+      Physical Vatika mode:
+      Hidden virtual Vatika polygons
+      should not be clickable or show
+      popup/labels.
+    */
+    if (
+      physicalOnly &&
+      !isPhysical
+    ) {
+      layer.options.interactive = false;
+      return;
+    }
+
+    layer.bindPopup(`
+      <b>Vatika:</b>
+      ${feature.properties.vatika_name}
+      <br>
+      <b>Village:</b>
+      ${feature.properties.village_name}
+      <br>
+      <b>Households:</b>
+      ${feature.properties.households}
+    `);
+
+    if (
+      feature.properties.vatika_name
+    ) {
+      layer.bindTooltip(
+        feature.properties.vatika_name,
+        {
+          permanent: true,
+          direction: "center",
+          className:
+            "vatika-label"
         }
+      );
+    }
+  }
+
+      }
+    ).addTo(map);
+
+
+  /* =========================
+     MAP BOUNDS
+     
+     Normal Vatika:
+       Existing behavior
+
+     Physical Vatika:
+       Fit only around physical
+       features.
+  ========================= */
+
+  if (physicalOnly) {
+
+    const physicalFeatures =
+      polygonFeatures.filter(
+        feature =>
+          Number(
+            feature.properties.is_physical
+          ) === 1
+      );
+
+    if (
+      physicalFeatures.length > 0
+    ) {
+
+      const physicalBounds =
+        L.geoJSON(
+          physicalFeatures
+        ).getBounds();
+
+      if (
+        physicalBounds.isValid()
+      ) {
+
+        map.fitBounds(
+          physicalBounds
+        );
+
       }
 
     }
 
-  ).addTo(map);
+  } else {
+
+    if (
+      voronoiLayer.getBounds().isValid()
+    ) {
+
+      map.fitBounds(
+        voronoiLayer.getBounds()
+      );
+
+    }
+
+  }
+
 
   /* =========================
-     FIT MAP
+     LEGEND
   ========================= */
 
-  map.fitBounds(
-    voronoiLayer.getBounds()
-  );
-
-  /* =========================
-     INITIAL LABEL STATE
-  ========================= */
   addVatikaLegend();
+
   updateVatikaLabels();
+
 }
 
 
@@ -306,18 +376,18 @@ function renderVoronoiLayer(
 ========================= */
 
 async function loadVoronoi(
-  blockCodes
+  blockCodes,
+  physicalOnly = false
 ) {
 
   try {
 
     if (!blockCodes) return;
 
-    const res = await fetch(
-
-      `/geo/voronoi?block_codes=${blockCodes}`
-
-    );
+    const res =
+      await fetch(
+        `/geo/voronoi?block_codes=${blockCodes}`
+      );
 
     const geojson =
       await res.json();
@@ -328,7 +398,8 @@ async function loadVoronoi(
     );
 
     renderVoronoiLayer(
-      geojson
+      geojson,
+      physicalOnly
     );
 
   } catch (error) {
@@ -337,27 +408,25 @@ async function loadVoronoi(
       "Voronoi API Error:",
       error
     );
+
   }
 }
 
 
 /* =========================
-   MAP ZOOM EVENT
+   MAP ZOOM HANDLER
 ========================= */
 
 document.addEventListener(
   "DOMContentLoaded",
-
   function () {
 
     const waitForMap =
       setInterval(
-
         function () {
 
           if (
-            typeof map !==
-            "undefined" &&
+            typeof map !== "undefined" &&
             map
           ) {
 
@@ -366,22 +435,19 @@ document.addEventListener(
             );
 
             map.on(
-
               "zoomend",
-
               function () {
 
                 updateVatikaLabels();
-              }
 
+              }
             );
+
           }
 
         },
-
         250
-
       );
+
   }
 );
-

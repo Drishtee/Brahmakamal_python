@@ -11,6 +11,9 @@ let vatikaBoundaryLayer = null;
 let multiBlockLayer = null;
 let routeLayer = null;
 let routeLegend = null;
+
+let physicalRouteLayer = null;
+let physicalRouteLegend = null;
 /* =========================
    MAP UPDATE - STATE
 ========================= */
@@ -236,6 +239,34 @@ function clearRouteLayer() {
     routeLegend = null;
   }
 }
+
+/* =========================
+   CLEAR PHYSICAL ROUTES
+========================= */
+
+function clearPhysicalRouteLayer() {
+
+  if (
+    physicalRouteLayer &&
+    map.hasLayer(physicalRouteLayer)
+  ) {
+    map.removeLayer(
+      physicalRouteLayer
+    );
+
+    physicalRouteLayer = null;
+  }
+
+  if (
+    physicalRouteLegend
+  ) {
+    map.removeControl(
+      physicalRouteLegend
+    );
+
+    physicalRouteLegend = null;
+  }
+}
 /* =========================
    RESET MAP
 ========================= */
@@ -252,11 +283,12 @@ function resetMap() {
 
   clearRouteLayer();
 
+  clearPhysicalRouteLayer();
+
   if (
     indiaLayer &&
     !map.hasLayer(indiaLayer)
   ) {
-
     indiaLayer.addTo(map);
   }
 
@@ -268,19 +300,20 @@ function resetMap() {
   }
 }
 
-
 /* =========================
    UPDATE MAP MULTI BLOCKS
 ========================= */
 
 function updateMapByMultiBlocks() {
- clearMapMarkers();
+clearMapMarkers();
 
 clearVoronoiLayer();
 
 clearVatikaBoundary();
 
 clearRouteLayer();
+
+clearPhysicalRouteLayer();
 
 clearMultiBlockLayer();
 

@@ -286,6 +286,66 @@ def get_routes(block_codes):
 
     return result
 
+def get_physical_routes(block_codes):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "EXEC usp_get_physical_routes_by_block_code_new ?",
+        block_codes
+    )
+
+    columns = [
+        col[0]
+        for col in cursor.description
+    ]
+
+    rows = cursor.fetchall()
+
+    result = []
+
+    for row in rows:
+
+        data = dict(
+            zip(columns, row)
+        )
+
+        result.append({
+
+            "block_name":
+                data.get("block_name"),
+
+            "route_code":
+                data.get("route_code"),
+
+            "route_name":
+                data.get("route_name"),
+
+            "route_village":
+                data.get("route_village"),
+
+            "village_hh":
+                data.get("village_hh"),
+
+            "google_maps_link":
+                data.get("GoogleMapsLink"),
+
+            "block_lat":
+                data.get("block_lat"),
+
+            "block_lng":
+                data.get("block_lng"),
+
+            "route_village_lat":
+                data.get("route_village_lat"),
+
+            "route_village_lng":
+                data.get("route_village_lng")
+        })
+
+    conn.close()
+
+    return result
 
 def get_voronoi_geojson(block_code):
 

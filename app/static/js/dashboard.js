@@ -244,7 +244,10 @@ function renderVillages(data) {
    RENDER VATIKAS
 ========================= */
 
-function renderVatikas(data) {
+function renderVatikas(
+  data,
+  physicalOnly = false
+) {
 
   const container =
     document.getElementById(
@@ -263,33 +266,55 @@ function renderVatikas(data) {
 
   container.innerHTML = "";
 
-  if (!data || data.length === 0) {
+  /*
+    Physical Vatika mode:
+    Show only records where
+    is_physical = 1
+  */
+  const displayData = physicalOnly
+    ? (data || []).filter(
+      v => Number(v.is_physical) === 1
+    )
+    : data;
+
+  if (
+    !displayData ||
+    displayData.length === 0
+  ) {
 
     empty.innerText =
-      "No Vatikas found for selected Block(s)";
+      physicalOnly
+        ? "No Physical Vatikas found for selected Block(s)"
+        : "No Vatikas found for selected Block(s)";
 
-    empty.style.display = "block";
+    empty.style.display =
+      "block";
 
     return;
   }
 
-  empty.style.display = "none";
+  empty.style.display =
+    "none";
 
   header.style.gridTemplateColumns =
     "1fr 1fr 2fr 2fr 1fr";
 
   header.innerHTML = `
+
     <div>Block</div>
     <div>Vatika Code</div>
     <div>Vatika Name</div>
     <div>Village Name</div>
     <div>Households</div>
+
   `;
 
-  data.forEach(v => {
+  displayData.forEach(v => {
 
     const row =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     row.className =
       "territory-row";
@@ -298,15 +323,90 @@ function renderVatikas(data) {
       "1fr 1fr 2fr 2fr 1fr";
 
     row.innerHTML = `
-      <div>${v.block_name || "-"}</div>
-      <div>${v.vatika_code || "-"}</div>
-      <div>${v.vatika_name || "-"}</div>
-      <div>${v.village_name || "-"}</div>
-      <div>${v.households || "-"}</div>
+
+      <div>
+        ${v.block_name || "-"}
+      </div>
+
+      <div>
+        ${v.vatika_code || "-"}
+      </div>
+
+      <div>
+        ${v.vatika_name || "-"}
+      </div>
+
+      <div>
+        ${v.village_name || "-"}
+      </div>
+
+      <div>
+        ${v.households || "-"}
+      </div>
+
     `;
 
-    container.appendChild(row);
+    container.appendChild(
+      row
+    );
+
   });
+}
+/* =========================
+   ROUTE VISIT / COORDINATES MODAL
+========================= */
+
+function showCoordinatesUnavailableModal() {
+
+  const modal =
+    document.getElementById(
+      "coordinatesModal"
+    );
+
+  if (!modal) return;
+
+  modal.classList.add(
+    "active"
+  );
+}
+
+
+function closeCoordinatesUnavailableModal() {
+
+  const modal =
+    document.getElementById(
+      "coordinatesModal"
+    );
+
+  if (!modal) return;
+
+  modal.classList.remove(
+    "active"
+  );
+}
+
+
+function visitRoute(
+  googleMapsLink
+) {
+
+  const link =
+    typeof googleMapsLink === "string"
+      ? googleMapsLink.trim()
+      : "";
+
+  if (link) {
+
+    window.open(
+      link,
+      "_blank",
+      "noopener,noreferrer"
+    );
+
+    return;
+  }
+
+  showCoordinatesUnavailableModal();
 }
 
 /* =========================
@@ -369,34 +469,156 @@ function renderRoutes(data) {
       "1fr 1fr 2fr 2fr 1fr 1fr";
 
     row.innerHTML = `
+  <div>${r.block_name || "-"}</div>
+  <div>${r.route_code || "-"}</div>
+  <div>${r.route_name || "-"}</div>
+  <div>${r.route_village || "-"}</div>
+  <div>${r.village_hh || "-"}</div>
+  <div>
+    <button type="button" class="visit-btn">
+      Visit
+    </button>
+  </div>
+`;
 
-      <div>${r.block_name || "-"}</div>
+    const visitButton = row.querySelector(".visit-btn");
 
-      <div>${r.route_code || "-"}</div>
-
-      <div>${r.route_name || "-"}</div>
-
-      <div>${r.route_village || "-"}</div>
-
-      <div>${r.village_hh || "-"}</div>
-
-      <div>
-
-        <button
-          class="visit-btn"
-          onclick="window.open(
-            '${r.google_maps_link}',
-            '_blank'
-          )"
-        >
-          Visit
-        </button>
-
-      </div>
-
-    `;
+    visitButton.addEventListener("click", function () {
+      visitRoute(r.google_maps_link);
+    });
 
     container.appendChild(row);
+  });
+}
+
+/* =========================
+   RENDER PHYSICAL ROUTES
+========================= */
+
+function renderPhysicalRoutes(data) {
+
+  const container =
+    document.getElementById(
+      "territoryContainer"
+    );
+
+  const header =
+    document.getElementById(
+      "territoryHeader"
+    );
+
+  const empty =
+    document.getElementById(
+      "emptyState"
+    );
+
+  container.innerHTML = "";
+
+
+  if (
+    !data ||
+    data.length === 0
+  ) {
+
+    empty.innerText =
+      "No Physical Routes found for selected Block(s)";
+
+    empty.style.display =
+      "block";
+
+    return;
+  }
+
+
+  empty.style.display =
+    "none";
+
+
+  header.style.gridTemplateColumns =
+    "1fr 1fr 2fr 2fr 1fr 1fr";
+
+
+  header.innerHTML = `
+
+    <div>Block</div>
+
+    <div>Route Code</div>
+
+    <div>Route Name</div>
+
+    <div>Village</div>
+
+    <div>HH</div>
+
+    <div>Visit</div>
+
+  `;
+
+
+  data.forEach(r => {
+
+    const row =
+      document.createElement(
+        "div"
+      );
+
+
+    row.className =
+      "territory-row";
+
+
+    row.style.gridTemplateColumns =
+      "1fr 1fr 2fr 2fr 1fr 1fr";
+
+
+    row.innerHTML = `
+
+  <div>
+    ${r.block_name || "-"}
+  </div>
+
+  <div>
+    ${r.route_code || "-"}
+  </div>
+
+  <div>
+    ${r.route_name || "-"}
+  </div>
+
+  <div>
+    ${r.route_village || "-"}
+  </div>
+
+  <div>
+    ${r.village_hh || "-"}
+  </div>
+
+  <div>
+    <button
+      type="button"
+      class="visit-btn"
+    >
+      Visit
+    </button>
+  </div>
+
+`;
+
+    const visitButton =
+      row.querySelector(".visit-btn");
+
+    visitButton.addEventListener(
+      "click",
+      function () {
+        visitRoute(r.google_maps_link);
+      }
+    );
+
+
+    container.appendChild(
+      row
+    );
+
   });
 }
 
@@ -570,6 +792,8 @@ function applyMultiBlockSelection() {
   clearVatikaBoundary();
 
   clearRouteLayer();
+
+  clearPhysicalRouteLayer();
 
   document.getElementById(
     "viewType"
@@ -804,6 +1028,8 @@ document.addEventListener(
         if (stateCode) {
           clearRouteLayer();
 
+          clearPhysicalRouteLayer();
+
           clearVoronoiLayer();
 
           clearVatikaBoundary();
@@ -911,8 +1137,8 @@ document.addEventListener(
       );
 
     /* =========================
-       VIEW TYPE CHANGE
-    ========================= */
+     VIEW TYPE CHANGE
+  ========================= */
 
     document.getElementById(
       "viewType"
@@ -925,6 +1151,11 @@ document.addEventListener(
         const viewType =
           this.value;
 
+
+        /* =========================
+           NO BLOCKS SELECTED
+        ========================= */
+
         if (
           selectedBlocks.length === 0
         ) {
@@ -935,8 +1166,11 @@ document.addEventListener(
 
           clearRouteLayer();
 
+          clearPhysicalRouteLayer();
+
           return;
         }
+
 
         /* =========================
    VATIKA MODE
@@ -949,6 +1183,9 @@ document.addEventListener(
         ) {
 
           clearRouteLayer();
+
+          clearPhysicalRouteLayer();
+
           clearBlockMarker();
 
           const blockCodes =
@@ -959,68 +1196,247 @@ document.addEventListener(
             blockCodes
           );
 
-          /* =========================
-             CLEAR MULTI BLOCK CIRCLES
-          ========================= */
-
           clearMultiBlockLayer();
 
           loadVoronoi(
-            blockCodes
+            blockCodes,
+            false
           );
 
           loadVatikas(
-            blockCodes
+            blockCodes,
+            false
           );
 
           return;
         }
 
+        /* =========================
+   PHYSICAL VATIKA MODE
+========================= */
 
+if (
+  viewType &&
+  viewType.toLowerCase() ===
+  "physical_vatika"
+) {
+
+  clearRouteLayer();
+
+  clearPhysicalRouteLayer();
+
+  clearBlockMarker();
+
+  const blockCodes =
+    selectedBlocks.join(",");
+
+  console.log(
+    "Physical Vatika Block Codes:",
+    blockCodes
+  );
+
+  clearMultiBlockLayer();
+
+  /*
+    Load the complete Voronoi GeoJSON,
+    but render only physical Vatikas.
+  */
+  loadVoronoi(
+    blockCodes,
+    true
+  );
+
+  /*
+    Load Vatika data and show only
+    is_physical = 1 records in table.
+  */
+  loadVatikas(
+    blockCodes,
+    true
+  );
+
+  return;
+}
+
+
+     
         /* =========================
            ROUTES MODE
         ========================= */
 
         if (
-          viewType &&
-          viewType.toLowerCase() ===
-          "routes"
-        ) {
+      viewType &&
+      viewType.toLowerCase() ===
+      "routes"
+    ) {
 
-          clearVoronoiLayer();
+      clearVoronoiLayer();
 
-          clearVatikaBoundary();
+      clearVatikaBoundary();
 
-          clearMultiBlockLayer();
+      clearPhysicalRouteLayer();
 
-          const blockCodes =
-            selectedBlocks.join(",");
-
-          loadRoutes(
-            blockCodes
-          );
-
-          loadRouteGeoJSON(
-            blockCodes
-          );
-
-          return;
-        }
+      clearMultiBlockLayer();
 
 
-        /* =========================
-           DEFAULT
-        ========================= */
+      const blockCodes =
+        selectedBlocks.join(",");
 
-        clearVoronoiLayer();
 
-        clearVatikaBoundary();
+      console.log(
+        "Route Block Codes:",
+        blockCodes
+      );
 
-        clearRouteLayer();
+
+      clearRouteLayer();
+
+
+      loadRoutes(
+        blockCodes
+      );
+
+      loadRouteGeoJSON(
+        blockCodes
+      );
+
+
+      return;
+    }
+
+
+    /* =========================
+       PHYSICAL ROUTES MODE
+    ========================= */
+
+    if (
+      viewType &&
+      viewType.toLowerCase() ===
+      "physical_routes"
+    ) {
+
+      clearVoronoiLayer();
+
+      clearVatikaBoundary();
+
+      clearRouteLayer();
+
+      clearMultiBlockLayer();
+
+
+      const blockCodes =
+        selectedBlocks.join(",");
+
+
+      console.log(
+        "Physical Route Block Codes:",
+        blockCodes
+      );
+
+
+      loadPhysicalRoutes(
+        blockCodes
+      );
+
+      loadPhysicalRouteGeoJSON(
+        blockCodes
+      );
+
+
+      return;
+    }
+
+
+    /* =========================
+       DEFAULT
+    ========================= */
+
+    clearVoronoiLayer();
+
+    clearVatikaBoundary();
+
+    clearRouteLayer();
+
+    clearPhysicalRouteLayer();
+
+  }
+
+);
+
+/* =========================
+COORDINATES MODAL
+========================= */
+
+const coordinatesModal =
+  document.getElementById(
+    "coordinatesModal"
+  );
+
+const coordinatesModalClose =
+  document.getElementById(
+    "coordinatesModalClose"
+  );
+
+const coordinatesModalOk =
+  document.getElementById(
+    "coordinatesModalOk"
+  );
+
+
+if (coordinatesModalClose) {
+
+  coordinatesModalClose.addEventListener(
+    "click",
+    closeCoordinatesUnavailableModal
+  );
+
+}
+
+
+if (coordinatesModalOk) {
+
+  coordinatesModalOk.addEventListener(
+    "click",
+    closeCoordinatesUnavailableModal
+  );
+
+}
+
+
+if (coordinatesModal) {
+
+  coordinatesModal.addEventListener(
+    "click",
+    function (event) {
+
+      if (
+        event.target ===
+        coordinatesModal
+      ) {
+
+        closeCoordinatesUnavailableModal();
+
       }
 
-    );
+    }
+  );
+
+}
+
+
+document.addEventListener(
+  "keydown",
+  function (event) {
+
+    if (
+      event.key === "Escape"
+    ) {
+
+      closeCoordinatesUnavailableModal();
+
+    }
+
+  }
+);
 
   });
-
-

@@ -207,9 +207,9 @@ async function loadVillages(
 ========================= */
 
 async function loadVatikas(
-  blockCodes
+  blockCodes,
+  physicalOnly = false
 ) {
-
   try {
 
     if (!blockCodes) return;
@@ -227,7 +227,8 @@ async function loadVatikas(
     );
 
     renderVatikas(
-      data
+      data,
+      physicalOnly
     );
 
   } catch (error) {
@@ -236,6 +237,7 @@ async function loadVatikas(
       "Vatika API Error:",
       error
     );
+
   }
 }
 
@@ -275,5 +277,43 @@ async function loadRoutes(
       "Routes API Error:",
       error
     );
+  }
+}
+
+/* =========================
+   LOAD PHYSICAL ROUTES
+========================= */
+
+async function loadPhysicalRoutes(
+  blockCodes
+) {
+
+  try {
+
+    if (!blockCodes) return;
+
+    const res = await fetch(
+      `/geo/physical_routes?block_codes=${blockCodes}`
+    );
+
+    const data =
+      await res.json();
+
+    console.log(
+      "Physical Routes:",
+      data
+    );
+
+    renderPhysicalRoutes(
+      data
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Physical Routes API Error:",
+      error
+    );
+
   }
 }

@@ -109,6 +109,100 @@
   display: inline-block;
 }
 
+/* =========================
+   COORDINATES MODAL
+========================= */
+
+.coordinates-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.coordinates-modal.active {
+  display: flex;
+}
+
+.coordinates-modal-content {
+  width: 100%;
+  max-width: 430px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: coordinatesModalIn 0.18s ease-out;
+}
+
+.coordinates-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.coordinates-modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.coordinates-modal-close {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  color: #777;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.coordinates-modal-close:hover {
+  color: #333;
+}
+
+.coordinates-modal-body {
+  padding: 20px;
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.coordinates-modal-footer {
+  padding: 12px 20px 18px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.coordinates-modal-ok {
+  border: none;
+  border-radius: 7px;
+  padding: 8px 18px;
+  background: #2f9a97;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.coordinates-modal-ok:hover {
+  background: #258481;
+}
+
+@keyframes coordinatesModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
   </style>
 
@@ -121,16 +215,72 @@
 
     <div id="emptyState" class="empty">No Territory found for selected State</div>
   </div>
+
+  <!-- =========================
+     COORDINATES MODAL
+========================= -->
+
+<div
+  id="coordinatesModal"
+  class="coordinates-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="coordinatesModalTitle"
+>
+
+  <div class="coordinates-modal-content">
+
+    <div class="coordinates-modal-header">
+
+      <div
+        id="coordinatesModalTitle"
+        class="coordinates-modal-title"
+      >
+        Map Unavailable
+      </div>
+
+      <button
+        type="button"
+        id="coordinatesModalClose"
+        class="coordinates-modal-close"
+        aria-label="Close"
+      >
+        &times;
+      </button>
+
+    </div>
+
+    <div class="coordinates-modal-body">
+
+      Coordinates not available for the selected route villages.
+
+    </div>
+
+    <div class="coordinates-modal-footer">
+
+      <button
+        type="button"
+        id="coordinatesModalOk"
+        class="coordinates-modal-ok"
+      >
+        OK
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
 {% endblock %}
 
 {% block scripts %}
-  <script src="/static/js/map.js"></script>
 
-  <script src="/static/js/voronoi.js"></script>
+  <script src="{{ static_version('/static/js/map.js') }}"></script>
+  <script src="{{ static_version('/static/js/voronoi.js') }}"></script>
+  <script src="{{ static_version('/static/js/filters.js') }}"></script>
+  <script src="{{ static_version('/static/js/routes.js') }}"></script>
+  <script src="{{ static_version('/static/js/physical_routes.js') }}"></script>
+  <script src="{{ static_version('/static/js/dashboard.js') }}"></script>
 
-  <script src="/static/js/filters.js"></script>
-
-  <script src="/static/js/routes.js"></script>
-
-  <script src="/static/js/dashboard.js"></script>
 {% endblock %}
