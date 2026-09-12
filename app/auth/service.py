@@ -12,7 +12,7 @@ def authenticate_user(username: str, password: str):
         response = requests.post(settings.API_URL, data=payload, verify=False)
         response.raise_for_status()
         data = response.json()
-        # print(response.json())
+        print(response.json())
         if data.get("Data") and data["Data"][0].get("user_code") != 0:
             return {
                 "success": True,

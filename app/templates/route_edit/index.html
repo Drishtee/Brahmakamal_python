@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+
+        name="viewport"
+
+        content="width=device-width, initial-scale=1.0"
+
+    >
+
+    <title>Edit Route - Brahmakamal Dashboard</title>
+
+    <style>
+
+        * {
+
+            box-sizing: border-box;
+
+        }
+
+        body {
+
+            margin: 0;
+
+            font-family: Arial, Helvetica, sans-serif;
+
+            background: #f5f7fa;
+
+            color: #1f2937;
+
+        }
+
+        /* =========================================================*
+
+           HEADER
+
+        ========================================================= */*
+
+        .header {
+    background: linear-gradient(
+        135deg,
+        #1D9E75,
+        #3a7bd5
+    );
+    color: white;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+        .header-title {
+    font-size: 18px;
+    font-weight: 600;
+    
+}
+
+        
+
+        .header-right {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 18px;
+
+        }
+
+        .welcome-text {
+
+            font-size: 14px;
+
+            color: #6b7280;
+
+        }
+
+        /* =========================================================*
+
+           PAGE
+
+        ========================================================= */*
+
+        .page-container {
+
+            width: 100%;
+
+            max-width: 1400px;
+
+            margin: 0 auto;
+
+            padding: 28px;
+
+        }
+
+        .page-header {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 20px;
+
+        }
+
+        .page-title {
+
+            margin: 0;
+
+            font-size: 26px;
+
+            font-weight: 600;
+
+            color: #111827;
+
+        }
+
+        .page-subtitle {
+
+            margin: 5px 0 0;
+
+            font-size: 14px;
+
+            color: #6b7280;
+
+        }
+
+        /* =========================================================*
+
+           BUTTONS
+
+        ========================================================= */*
+
+        button {
+
+            font-family: inherit;
+
+        }
+
+        .back-btn {
+
+            height: 40px;
+
+            padding: 0 16px;
+
+            background: #ffffff;
+
+            color: #374151;
+
+            border: 1px solid #d1d5db;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-size: 14px;
+
+            font-weight: 500;
+
+            transition: 0.2s;
+
+        }
+
+        .back-btn:hover {
+
+            background: #f9fafb;
+
+        }
+
+        .cancel-btn {
+
+            height: 42px;
+
+            padding: 0 20px;
+
+            background: #ffffff;
+
+            color: #374151;
+
+            border: 1px solid #d1d5db;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-size: 14px;
+
+            font-weight: 500;
+
+            transition: 0.2s;
+
+        }
+
+        .cancel-btn:hover {
+
+            background: #f9fafb;
+
+        }
+
+        .update-btn {
+
+            height: 42px;
+
+            padding: 0 22px;
+
+            background: #1D9E75;
+
+            color: #ffffff;
+
+            border: none;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            transition: 0.2s;
+
+        }
+
+        .update-btn:hover:not(:disabled) {
+
+            background: #168563;
+
+        }
+
+        .update-btn:disabled {
+
+            background: #b8d8cc;
+
+            cursor: not-allowed;
+
+        }
+
+        /* =========================================================*
+
+           CARD
+
+        ========================================================= */*
+
+        .card {
+
+            background: #ffffff;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 12px;
+
+            padding: 24px;
+
+            margin-bottom: 20px;
+
+        }
+
+        .card-title {
+
+            margin: 0 0 20px;
+
+            font-size: 17px;
+
+            font-weight: 600;
+
+            color: #111827;
+
+        }
+
+        /* =========================================================*
+
+           ROUTE DETAILS
+
+        ========================================================= */*
+
+        .company-row {
+
+            margin-bottom: 20px;
+
+        }
+
+        .form-grid {
+
+            display: grid;
+
+            grid-template-columns:
+
+                repeat(3, minmax(0, 1fr));
+
+            gap: 18px;
+
+        }
+
+        .form-group {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 7px;
+
+        }
+
+        .form-label {
+
+            font-size: 13px;
+
+            font-weight: 500;
+
+            color: #374151;
+
+        }
+
+        .form-control {
+
+            width: 100%;
+
+            height: 40px;
+
+            padding: 0 12px;
+
+            border: 1px solid #d1d5db;
+
+            border-radius: 8px;
+
+            background: #ffffff;
+
+            color: #1f2937;
+
+            font-size: 14px;
+
+            outline: none;
+
+            transition: 0.2s;
+
+        }
+
+        .form-control:focus {
+
+            border-color: #1D9E75;
+
+            box-shadow: 0 0 0 2px rgba(29, 158, 117, 0.10);
+
+        }
+
+        .form-control:disabled {
+
+            background: #f3f4f6;
+
+            color: #9ca3af;
+
+            cursor: not-allowed;
+
+        }
+
+        .route-group {
+
+            margin-top: 18px;
+
+        }
+
+        /* =========================================================*
+
+           VILLAGE SECTION
+
+        ========================================================= */*
+
+        #villageManagementSection {
+
+            display: none;
+
+        }
+
+        .village-grid {
+
+            display: grid;
+
+            grid-template-columns:
+
+                repeat(2, minmax(0, 1fr));
+
+            gap: 20px;
+
+        }
+
+        .village-panel {
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 10px;
+
+            overflow: hidden;
+
+            background: #ffffff;
+
+        }
+
+        .village-panel-header {
+
+            padding: 15px 16px;
+
+            background: #f9fafb;
+
+            border-bottom: 1px solid #e5e7eb;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+        }
+
+        .village-panel-title {
+
+            margin: 0;
+
+            font-size: 15px;
+
+            font-weight: 600;
+
+            color: #111827;
+
+        }
+
+        .village-panel-count {
+
+            min-width: 28px;
+
+            height: 24px;
+
+            padding: 0 8px;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background: #eef2f7;
+
+            border-radius: 12px;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            color: #4b5563;
+
+        }
+
+        .village-search-container {
+
+            padding: 12px 14px;
+
+            border-bottom: 1px solid #e5e7eb;
+
+        }
+
+        .village-search {
+
+            width: 100%;
+
+            height: 36px;
+
+            padding: 0 11px;
+
+            border: 1px solid #d1d5db;
+
+            border-radius: 7px;
+
+            font-size: 13px;
+
+            outline: none;
+
+        }
+
+        .village-search:focus {
+
+            border-color: #1D9E75;
+
+        }
+
+        .village-list {
+
+            height: 360px;
+
+            overflow-y: auto;
+
+        }
+
+        .village-empty {
+
+            height: 100%;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 20px;
+
+            text-align: center;
+
+            font-size: 13px;
+
+            color: #9ca3af;
+
+        }
+
+        .village-item {
+
+            min-height: 62px;
+
+            padding: 11px 14px;
+
+            border-bottom: 1px solid #f0f1f3;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 12px;
+
+        }
+
+        .village-item:last-child {
+
+            border-bottom: none;
+
+        }
+
+        .village-info {
+
+            min-width: 0;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 4px;
+
+        }
+
+        .village-name {
+
+            font-size: 14px;
+
+            font-weight: 500;
+
+            color: #1f2937;
+
+            word-break: break-word;
+
+        }
+
+        .village-hh {
+
+            font-size: 12px;
+
+            color: #6b7280;
+
+        }
+
+        .village-action-btn {
+
+            flex-shrink: 0;
+
+            height: 32px;
+
+            padding: 0 12px;
+
+            border-radius: 7px;
+
+            cursor: pointer;
+
+            font-size: 12px;
+
+            font-weight: 500;
+
+            transition: 0.2s;
+
+        }
+
+        .add-village-btn {
+
+            background: #ecfdf5;
+
+            color: #047857;
+
+            border: 1px solid #a7f3d0;
+
+        }
+
+        .add-village-btn:hover {
+
+            background: #d1fae5;
+
+        }
+
+        .remove-village-btn {
+
+            background: #fff7ed;
+
+            color: #c2410c;
+
+            border: 1px solid #fed7aa;
+
+        }
+
+        .remove-village-btn:hover {
+
+            background: #ffedd5;
+
+        }
+
+        /* =========================================================*
+
+           SUMMARY
+
+        ========================================================= */*
+
+        #routeSummarySection {
+
+            display: none;
+
+        }
+
+        .summary-grid {
+
+            display: grid;
+
+            grid-template-columns:
+
+                repeat(4, minmax(0, 1fr));
+
+            gap: 14px;
+
+            margin-bottom: 20px;
+
+        }
+
+        .summary-item {
+
+            padding: 15px;
+
+            background: #f9fafb;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 8px;
+
+        }
+
+        .summary-label {
+
+            font-size: 12px;
+
+            color: #6b7280;
+
+            margin-bottom: 6px;
+
+        }
+
+        .summary-value {
+
+            font-size: 20px;
+
+            font-weight: 600;
+
+            color: #111827;
+
+        }
+
+        .household-summary {
+
+            padding: 18px;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 9px;
+
+            background: #ffffff;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+        }
+
+        .household-label {
+
+            font-size: 13px;
+
+            color: #6b7280;
+
+            margin-bottom: 5px;
+
+        }
+
+        .household-total {
+
+            font-size: 26px;
+
+            font-weight: 600;
+
+            color: #111827;
+
+        }
+
+        .household-range {
+
+            font-size: 12px;
+
+            color: #6b7280;
+
+            margin-top: 4px;
+
+        }
+
+        .validation-message {
+
+            padding: 9px 12px;
+
+            border-radius: 7px;
+
+            font-size: 13px;
+
+            font-weight: 500;
+
+        }
+
+        .validation-message.valid {
+
+            background: #ecfdf5;
+
+            color: #047857;
+
+        }
+
+        .validation-message.invalid {
+
+            background: #fff7ed;
+
+            color: #c2410c;
+
+        }
+
+        .validation-message.warning {
+
+            background: #fffbeb;
+
+            color: #a16207;
+
+        }
+
+        /* =========================================================*
+
+           ACTIONS
+
+        ========================================================= */*
+
+        #routeActions {
+
+            display: none;
+
+        }
+
+        .actions-container {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: flex-end;
+
+            gap: 12px;
+
+            margin-top: 6px;
+
+            margin-bottom: 20px;
+
+        }
+
+        /* =========================================================*
+
+           SUCCESS SCREEN
+
+        ========================================================= */*
+
+        #routeSuccessSection {
+
+            display: none;
+
+        }
+
+        .success-card {
+
+            background: #ffffff;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 12px;
+
+            padding: 60px 30px;
+
+            text-align: center;
+
+        }
+
+        .success-icon {
+
+            width: 58px;
+
+            height: 58px;
+
+            margin: 0 auto 18px;
+
+            border-radius: 50%;
+
+            background: #ecfdf5;
+
+            color: #047857;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 28px;
+
+            font-weight: 600;
+
+        }
+
+        .success-title {
+
+            margin: 0 0 8px;
+
+            font-size: 22px;
+
+            font-weight: 600;
+
+            color: #111827;
+
+        }
+
+        .success-message {
+
+            margin: 0 0 25px;
+
+            font-size: 14px;
+
+            color: #6b7280;
+
+        }
+
+        .success-actions {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 12px;
+
+        }
+
+        /* =========================================================*
+
+           LOADING
+
+        ========================================================= */*
+
+        .loading {
+
+            opacity: 0.6;
+
+            pointer-events: none;
+
+        }
+
+        /* =========================================================*
+
+           RESPONSIVE
+
+        ========================================================= */*
+
+        @media (max-width: 1000px) {
+
+            .form-grid {
+
+                grid-template-columns:
+
+                    repeat(2, minmax(0, 1fr));
+
+            }
+
+            .summary-grid {
+
+                grid-template-columns:
+
+                    repeat(2, minmax(0, 1fr));
+
+            }
+
+            .village-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+        }
+
+        @media (max-width: 650px) {
+
+            .header {
+
+                padding: 15px 16px;
+
+            }
+
+            .header-title {
+
+                font-size: 17px;
+
+            }
+
+            .welcome-text {
+
+                display: none;
+
+            }
+
+            .page-container {
+
+                padding: 18px 14px;
+
+            }
+
+            .page-header {
+
+                align-items: flex-start;
+
+                gap: 15px;
+
+            }
+
+            .page-title {
+
+                font-size: 22px;
+
+            }
+
+            .form-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+            .summary-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+            .household-summary {
+
+                align-items: flex-start;
+
+                flex-direction: column;
+
+            }
+
+            .actions-container {
+
+                flex-direction: column-reverse;
+
+                align-items: stretch;
+
+            }
+
+            .actions-container button {
+
+                width: 100%;
+
+            }
+
+            .success-actions {
+
+                flex-direction: column;
+
+            }
+
+            .success-actions button {
+
+                width: 100%;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- =========================================================
+
+         HEADER
+
+    ========================================================== -->
+
+    <header class="header">
+
+        <div class="header-title">
+
+            Brahmakamal Dashboard
+
+        </div>
+
+        <div class="header-right">
+
+            <span class="welcome-text">
+
+                Welcome,
+
+                {{ user.first_name if user else "" }}
+
+            </span>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =========================================================
+
+         MAIN PAGE
+
+    ========================================================== -->
+
+    <main class="page-container">
+
+        <!-- PAGE HEADER -->
+
+        <div class="page-header">
+
+            <div>
+
+                <h1 class="page-title">
+
+                    Edit Route
+
+                </h1>
+
+                <p class="page-subtitle">
+
+                    Select a route and manage its villages.
+
+                </p>
+
+            </div>
+
+            <button
+
+                type="button"
+
+                id="backToDashboardBtn"
+
+                class="back-btn"
+
+            >
+
+                Back to Dashboard
+
+            </button>
+
+        </div>
+
+
+
+        <!-- =====================================================
+
+             ROUTE DETAILS
+
+        ====================================================== -->
+
+        <section class="card">
+
+            <h2 class="card-title">
+
+                Route Details
+
+            </h2>
+
+
+
+            <!-- COMPANY -->
+
+            <div class="company-row">
+
+                <div class="form-group">
+
+                    <label
+
+                        class="form-label"
+
+                        for="routeCompany"
+
+                    >
+
+                        Company
+
+                    </label>
+
+                    <select
+
+                        id="routeCompany"
+
+                        class="form-control"
+
+                        disabled
+
+                    >
+
+                        <option value="DDCL">
+
+                            DDCL
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- STATE / DISTRICT / BLOCK -->
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label
+
+                        class="form-label"
+
+                        for="routeState"
+
+                    >
+
+                        State
+
+                    </label>
+
+                    <select
+
+                        id="routeState"
+
+                        class="form-control"
+
+                    >
+
+                        <option value="">
+
+                            Select State
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label
+
+                        class="form-label"
+
+                        for="routeDistrict"
+
+                    >
+
+                        District
+
+                    </label>
+
+                    <select
+
+                        id="routeDistrict"
+
+                        class="form-control"
+
+                        disabled
+
+                    >
+
+                        <option value="">
+
+                            Select District
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label
+
+                        class="form-label"
+
+                        for="routeBlock"
+
+                    >
+
+                        Block
+
+                    </label>
+
+                    <select
+
+                        id="routeBlock"
+
+                        class="form-control"
+
+                        disabled
+
+                    >
+
+                        <option value="">
+
+                            Select Block
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ROUTE -->
+
+            <div class="form-group route-group">
+
+                <label
+
+                    class="form-label"
+
+                    for="routeSelect"
+
+                >
+
+                    Route
+
+                </label>
+
+                <select
+
+                    id="routeSelect"
+
+                    class="form-control"
+
+                    disabled
+
+                >
+
+                    <option value="">
+
+                        Select Route
+
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+
+             MANAGE VILLAGES
+
+        ====================================================== -->
+
+        <section
+
+            class="card"
+
+            id="villageManagementSection"
+
+        >
+
+            <h2 class="card-title">
+
+                Manage Villages
+
+            </h2>
+
+
+
+            <div class="village-grid">
+
+
+
+                <!-- EXISTING VILLAGES -->
+
+                <div class="village-panel">
+
+                    <div class="village-panel-header">
+
+                        <h3 class="village-panel-title">
+
+                            Existing Villages
+
+                        </h3>
+
+                        <span
+
+                            id="existingVillageCount"
+
+                            class="village-panel-count"
+
+                        >
+
+                            0
+
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="village-search-container">
+
+                        <input
+
+                            type="text"
+
+                            id="existingVillageSearch"
+
+                            class="village-search"
+
+                            placeholder="Search existing villages..."
+
+                            autocomplete="off"
+
+                        >
+
+                    </div>
+
+
+
+                    <div
+
+                        id="existingVillageList"
+
+                        class="village-list"
+
+                    >
+
+                        <div class="village-empty">
+
+                            Select a route to load villages.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- AVAILABLE VILLAGES -->
+
+                <div class="village-panel">
+
+                    <div class="village-panel-header">
+
+                        <h3 class="village-panel-title">
+
+                            Available Villages
+
+                        </h3>
+
+                        <span
+
+                            id="availableVillageCount"
+
+                            class="village-panel-count"
+
+                        >
+
+                            0
+
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="village-search-container">
+
+                        <input
+
+                            type="text"
+
+                            id="availableVillageSearch"
+
+                            class="village-search"
+
+                            placeholder="Search available villages..."
+
+                            autocomplete="off"
+
+                        >
+
+                    </div>
+
+
+
+                    <div
+
+                        id="availableVillageList"
+
+                        class="village-list"
+
+                    >
+
+                        <div class="village-empty">
+
+                            Select a route to load villages.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+
+             ROUTE SUMMARY
+
+        ====================================================== -->
+
+        <section
+
+            class="card"
+
+            id="routeSummarySection"
+
+        >
+
+            <h2 class="card-title">
+
+                Route Summary
+
+            </h2>
+
+
+
+            <div class="summary-grid">
+
+
+
+                <div class="summary-item">
+
+                    <div class="summary-label">
+
+                        Existing Villages
+
+                    </div>
+
+                    <div
+
+                        id="summaryExistingVillages"
+
+                        class="summary-value"
+
+                    >
+
+                        0
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="summary-item">
+
+                    <div class="summary-label">
+
+                        Added Villages
+
+                    </div>
+
+                    <div
+
+                        id="summaryAddedVillages"
+
+                        class="summary-value"
+
+                    >
+
+                        0
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="summary-item">
+
+                    <div class="summary-label">
+
+                        Removed Villages
+
+                    </div>
+
+                    <div
+
+                        id="summaryRemovedVillages"
+
+                        class="summary-value"
+
+                    >
+
+                        0
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="summary-item">
+
+                    <div class="summary-label">
+
+                        Final Villages
+
+                    </div>
+
+                    <div
+
+                        id="summaryFinalVillages"
+
+                        class="summary-value"
+
+                    >
+
+                        0
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- HOUSEHOLD SUMMARY -->
+
+            <div class="household-summary">
+
+                <div>
+
+                    <div class="household-label">
+
+                        Total Households
+
+                    </div>
+
+                    <div
+
+                        id="totalHouseholds"
+
+                        class="household-total"
+
+                    >
+
+                        0
+
+                    </div>
+
+                    <div class="household-range">
+
+                        Required range: 7,500 – 10,000 HH
+
+                    </div>
+
+                </div>
+
+
+
+                <div
+
+                    id="householdValidation"
+
+                    class="validation-message warning"
+
+                >
+
+                    Select a route to calculate households.
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+
+             ACTION BUTTONS
+
+        ====================================================== -->
+
+        <div
+
+            id="routeActions"
+
+            class="actions-container"
+
+        >
+
+            <button
+
+                type="button"
+
+                id="cancelRouteBtn"
+
+                class="cancel-btn"
+
+            >
+
+                Cancel
+
+            </button>
+
+            <button
+
+                type="button"
+
+                id="updateRouteBtn"
+
+                class="update-btn"
+
+                disabled
+
+            >
+
+                Update Route
+
+            </button>
+
+        </div>
+
+
+
+        <!-- =====================================================
+
+             SUCCESS SCREEN
+
+        ====================================================== -->
+
+        <section
+
+            id="routeSuccessSection"
+
+        >
+
+            <div class="success-card">
+
+                <div class="success-icon">
+
+                    ✓
+
+                </div>
+
+                <h2 class="success-title">
+
+                    Route Updated
+
+                </h2>
+
+                <p class="success-message">
+
+                    The route has been updated successfully.
+
+                </p>
+
+                <div class="success-actions">
+
+                    <button
+
+                        type="button"
+
+                        id="editAnotherRouteBtn"
+
+                        class="update-btn"
+
+                    >
+
+                        Edit Another Route
+
+                    </button>
+
+                    <button
+
+                        type="button"
+
+                        id="successBackToDashboardBtn"
+
+                        class="cancel-btn"
+
+                    >
+
+                        Back to Dashboard
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- =========================================================
+
+         JAVASCRIPT
+
+    ========================================================== -->
+
+    <script src="/static/js/route_edit.js"></script>
+
+</body>
+
+</html>
