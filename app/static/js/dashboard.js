@@ -987,6 +987,60 @@ function resetFilters() {
 
 
 /* =========================
+   ROUTE ACCESS
+========================= */
+
+async function checkRouteAccess() {
+
+  try {
+
+    const res = await fetch("/geo/route-access");
+
+    if (!res.ok) {
+      return;
+    }
+
+    const data = await res.json();
+
+    const viewRoutesBtn =
+    document.getElementById("viewRoutesBtn");
+
+const editRouteBtn =
+    document.getElementById("editRouteBtn");
+
+if (data.route_access === true) {
+
+    if (viewRoutesBtn) {
+        viewRoutesBtn.style.display = "inline-flex";
+    }
+
+    if (editRouteBtn) {
+        editRouteBtn.style.display = "inline-flex";
+    }
+
+} else {
+
+    if (viewRoutesBtn) {
+        viewRoutesBtn.style.display = "none";
+    }
+
+    if (editRouteBtn) {
+        editRouteBtn.style.display = "none";
+    }
+
+}
+
+  } catch (error) {
+
+    console.error(
+      "Route Access API Error:",
+      error
+    );
+
+  }
+}
+
+/* =========================
    INIT
 ========================= */
 
@@ -999,6 +1053,33 @@ document.addEventListener(
 
     await loadTerritories();
 
+    await checkRouteAccess();
+
+    const viewRoutesBtn =
+  document.getElementById("viewRoutesBtn");
+
+if (viewRoutesBtn) {
+  viewRoutesBtn.addEventListener(
+    "click",
+    function () {
+      window.location.href =
+        "/route-management";
+    }
+  );
+}
+
+    const editRouteBtn =
+    document.getElementById("editRouteBtn");
+
+if (editRouteBtn) {
+    editRouteBtn.addEventListener(
+        "click",
+        function () {
+            window.location.href =
+                "/route-edit";
+        }
+    );
+}
     /* =========================
        STATE CHANGE
     ========================= */
@@ -1215,228 +1296,228 @@ document.addEventListener(
    PHYSICAL VATIKA MODE
 ========================= */
 
-if (
-  viewType &&
-  viewType.toLowerCase() ===
-  "physical_vatika"
-) {
+        if (
+          viewType &&
+          viewType.toLowerCase() ===
+          "physical_vatika"
+        ) {
 
-  clearRouteLayer();
+          clearRouteLayer();
 
-  clearPhysicalRouteLayer();
+          clearPhysicalRouteLayer();
 
-  clearBlockMarker();
+          clearBlockMarker();
 
-  const blockCodes =
-    selectedBlocks.join(",");
+          const blockCodes =
+            selectedBlocks.join(",");
 
-  console.log(
-    "Physical Vatika Block Codes:",
-    blockCodes
-  );
+          console.log(
+            "Physical Vatika Block Codes:",
+            blockCodes
+          );
 
-  clearMultiBlockLayer();
+          clearMultiBlockLayer();
 
-  /*
-    Load the complete Voronoi GeoJSON,
-    but render only physical Vatikas.
-  */
-  loadVoronoi(
-    blockCodes,
-    true
-  );
+          /*
+            Load the complete Voronoi GeoJSON,
+            but render only physical Vatikas.
+          */
+          loadVoronoi(
+            blockCodes,
+            true
+          );
 
-  /*
-    Load Vatika data and show only
-    is_physical = 1 records in table.
-  */
-  loadVatikas(
-    blockCodes,
-    true
-  );
+          /*
+            Load Vatika data and show only
+            is_physical = 1 records in table.
+          */
+          loadVatikas(
+            blockCodes,
+            true
+          );
 
-  return;
-}
+          return;
+        }
 
 
-     
+
         /* =========================
            ROUTES MODE
         ========================= */
 
         if (
-      viewType &&
-      viewType.toLowerCase() ===
-      "routes"
-    ) {
+          viewType &&
+          viewType.toLowerCase() ===
+          "routes"
+        ) {
 
-      clearVoronoiLayer();
+          clearVoronoiLayer();
 
-      clearVatikaBoundary();
+          clearVatikaBoundary();
 
-      clearPhysicalRouteLayer();
+          clearPhysicalRouteLayer();
 
-      clearMultiBlockLayer();
-
-
-      const blockCodes =
-        selectedBlocks.join(",");
+          clearMultiBlockLayer();
 
 
-      console.log(
-        "Route Block Codes:",
-        blockCodes
-      );
+          const blockCodes =
+            selectedBlocks.join(",");
 
 
-      clearRouteLayer();
+          console.log(
+            "Route Block Codes:",
+            blockCodes
+          );
 
 
-      loadRoutes(
-        blockCodes
-      );
-
-      loadRouteGeoJSON(
-        blockCodes
-      );
+          clearRouteLayer();
 
 
-      return;
-    }
+          loadRoutes(
+            blockCodes
+          );
+
+          loadRouteGeoJSON(
+            blockCodes
+          );
 
 
-    /* =========================
-       PHYSICAL ROUTES MODE
-    ========================= */
-
-    if (
-      viewType &&
-      viewType.toLowerCase() ===
-      "physical_routes"
-    ) {
-
-      clearVoronoiLayer();
-
-      clearVatikaBoundary();
-
-      clearRouteLayer();
-
-      clearMultiBlockLayer();
+          return;
+        }
 
 
-      const blockCodes =
-        selectedBlocks.join(",");
+        /* =========================
+           PHYSICAL ROUTES MODE
+        ========================= */
+
+        if (
+          viewType &&
+          viewType.toLowerCase() ===
+          "physical_routes"
+        ) {
+
+          clearVoronoiLayer();
+
+          clearVatikaBoundary();
+
+          clearRouteLayer();
+
+          clearMultiBlockLayer();
 
 
-      console.log(
-        "Physical Route Block Codes:",
-        blockCodes
-      );
+          const blockCodes =
+            selectedBlocks.join(",");
 
 
-      loadPhysicalRoutes(
-        blockCodes
-      );
-
-      loadPhysicalRouteGeoJSON(
-        blockCodes
-      );
+          console.log(
+            "Physical Route Block Codes:",
+            blockCodes
+          );
 
 
-      return;
-    }
+          loadPhysicalRoutes(
+            blockCodes
+          );
+
+          loadPhysicalRouteGeoJSON(
+            blockCodes
+          );
 
 
-    /* =========================
-       DEFAULT
-    ========================= */
-
-    clearVoronoiLayer();
-
-    clearVatikaBoundary();
-
-    clearRouteLayer();
-
-    clearPhysicalRouteLayer();
-
-  }
-
-);
-
-/* =========================
-COORDINATES MODAL
-========================= */
-
-const coordinatesModal =
-  document.getElementById(
-    "coordinatesModal"
-  );
-
-const coordinatesModalClose =
-  document.getElementById(
-    "coordinatesModalClose"
-  );
-
-const coordinatesModalOk =
-  document.getElementById(
-    "coordinatesModalOk"
-  );
+          return;
+        }
 
 
-if (coordinatesModalClose) {
+        /* =========================
+           DEFAULT
+        ========================= */
 
-  coordinatesModalClose.addEventListener(
-    "click",
-    closeCoordinatesUnavailableModal
-  );
+        clearVoronoiLayer();
 
-}
+        clearVatikaBoundary();
 
+        clearRouteLayer();
 
-if (coordinatesModalOk) {
-
-  coordinatesModalOk.addEventListener(
-    "click",
-    closeCoordinatesUnavailableModal
-  );
-
-}
-
-
-if (coordinatesModal) {
-
-  coordinatesModal.addEventListener(
-    "click",
-    function (event) {
-
-      if (
-        event.target ===
-        coordinatesModal
-      ) {
-
-        closeCoordinatesUnavailableModal();
+        clearPhysicalRouteLayer();
 
       }
 
+    );
+
+    /* =========================
+    COORDINATES MODAL
+    ========================= */
+
+    const coordinatesModal =
+      document.getElementById(
+        "coordinatesModal"
+      );
+
+    const coordinatesModalClose =
+      document.getElementById(
+        "coordinatesModalClose"
+      );
+
+    const coordinatesModalOk =
+      document.getElementById(
+        "coordinatesModalOk"
+      );
+
+
+    if (coordinatesModalClose) {
+
+      coordinatesModalClose.addEventListener(
+        "click",
+        closeCoordinatesUnavailableModal
+      );
+
     }
-  );
-
-}
 
 
-document.addEventListener(
-  "keydown",
-  function (event) {
+    if (coordinatesModalOk) {
 
-    if (
-      event.key === "Escape"
-    ) {
-
-      closeCoordinatesUnavailableModal();
+      coordinatesModalOk.addEventListener(
+        "click",
+        closeCoordinatesUnavailableModal
+      );
 
     }
 
-  }
-);
+
+    if (coordinatesModal) {
+
+      coordinatesModal.addEventListener(
+        "click",
+        function (event) {
+
+          if (
+            event.target ===
+            coordinatesModal
+          ) {
+
+            closeCoordinatesUnavailableModal();
+
+          }
+
+        }
+      );
+
+    }
+
+
+    document.addEventListener(
+      "keydown",
+      function (event) {
+
+        if (
+          event.key === "Escape"
+        ) {
+
+          closeCoordinatesUnavailableModal();
+
+        }
+
+      }
+    );
 
   });
