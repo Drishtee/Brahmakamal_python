@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 
 
 # =====================================================
@@ -58,7 +58,7 @@ class CreateRouteRequest(BaseModel):
     state_code: int
     district_code: int
     block_code: int
-    office_id: int | None = None
+    office_id: Optional[int] = None
     village_ids: List[int]
 
 
