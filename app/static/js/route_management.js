@@ -121,21 +121,7 @@ function setupEventListeners() {
     }
 
 
-    /* ---------------------------------------------
-       ROUTE NAME
-    --------------------------------------------- */
 
-    const routeNameInput =
-        document.getElementById("routeName");
-
-    if (routeNameInput) {
-
-        routeNameInput.addEventListener(
-            "input",
-            updateCreateRouteButton
-        );
-
-    }
 
 
     /* ---------------------------------------------
@@ -602,7 +588,6 @@ async function loadRouteBlocks(
 /* =========================================================
    BLOCK CHANGE
 ========================================================= */
-
 async function handleRouteBlockChange() {
 
     const blockDropdown =
@@ -611,28 +596,19 @@ async function handleRouteBlockChange() {
     const blockCode =
         blockDropdown.value;
 
-
     resetOfficeDropdown();
-
     resetVillages();
-
+    resetRouteName();
 
     if (!blockCode) {
 
         updateCreateRouteButton();
 
         return;
-
     }
 
-
-    /*
-       Office and Villages are independent API calls
-       for the selected Block.
-    */
-
     await Promise.all([
-        loadRouteOffices(blockCode),
+        loadRouteName(blockCode),
         loadRouteVillages(blockCode)
     ]);
 
@@ -725,6 +701,60 @@ async function loadRouteOffices(
 
 }
 
+
+/* =========================================================
+   LOAD ROUTE NAME
+   ========================================================= */
+
+async function loadRouteName(blockCode) {
+
+    const routeNameInput =
+        document.getElementById("routeName");
+
+    if (!routeNameInput) return;
+
+    try {
+
+        routeNameInput.value = "";
+        routeNameInput.placeholder = "Generating route name...";
+        routeNameInput.disabled = true;
+
+        const data =
+            await fetchRouteAPI(
+                `/route-management/route-name/${encodeURIComponent(blockCode)}`
+            );
+
+        routeNameInput.value =
+            data.route_name || "";
+
+        routeNameInput.placeholder =
+            "Route name";
+
+        routeNameInput.disabled = true;
+
+        updateCreateRouteButton();
+
+    } catch (error) {
+
+        console.error(
+            "Route Name API Error:",
+            error
+        );
+
+        routeNameInput.value = "";
+        routeNameInput.placeholder =
+            "Unable to generate route name";
+        routeNameInput.disabled = true;
+
+        updateCreateRouteButton();
+
+        showRouteError(
+            error.message
+        );
+
+    }
+
+}
 
 /* =========================================================
    LOAD VILLAGES
@@ -1272,7 +1302,6 @@ function updateCreateRouteButton() {
         Boolean(state) &&
         Boolean(district) &&
         Boolean(block) &&
-        Boolean(office) &&
         Boolean(routeName) &&
         selectedVillageIds.size > 0 &&
         validHouseholds;
@@ -1374,12 +1403,7 @@ async function createNewRoute() {
         );
 
 
-    const officeId =
-        Number(
-            document.getElementById(
-                "routeOffice"
-            ).value
-        );
+    const officeId = null;
 
 
     const routeName =
@@ -1396,21 +1420,19 @@ async function createNewRoute() {
 
     const payload = {
 
-        company: company,
+    company: company,
 
-        state_code: stateCode,
+    state_code: stateCode,
 
-        district_code: districtCode,
+    district_code: districtCode,
 
-        block_code: blockCode,
+    block_code: blockCode,
 
-        office_id: officeId,
+    office_id: officeId,
 
-        route_name: routeName,
+    village_ids: villageIds
 
-        village_ids: villageIds
-
-    };
+};
 
 
     try {
@@ -1772,6 +1794,23 @@ function resetOfficeDropdown() {
         ),
         "Select Office"
     );
+
+}
+
+/* =========================================================
+   RESET ROUTE NAME
+   ========================================================= */
+
+function resetRouteName() {
+
+    const routeNameInput =
+        document.getElementById("routeName");
+
+    if (!routeNameInput) return;
+
+    routeNameInput.value = "";
+    routeNameInput.placeholder = "Select a Block";
+    routeNameInput.disabled = true;
 
 }
 

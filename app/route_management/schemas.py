@@ -55,21 +55,10 @@ class VillageResponse(BaseModel):
 class CreateRouteRequest(BaseModel):
 
     company: str
-
     state_code: int
-
     district_code: int
-
     block_code: int
-
-    office_id: int
-
-    route_name: str = Field(
-        ...,
-        min_length=1,
-        max_length=100
-    )
-
+    office_id: int | None = None
     village_ids: List[int]
 
 
@@ -82,3 +71,7 @@ class CreateRouteResponse(BaseModel):
     success: bool
 
     message: str
+    
+    
+class RouteNameResponse(BaseModel):
+    route_name: str

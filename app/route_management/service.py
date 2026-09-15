@@ -176,7 +176,6 @@ def get_route_villages(block_code):
 # =====================================================
 
 def create_route(
-    route_name,
     village_ids,
     user_id,
     block_id,
@@ -197,6 +196,22 @@ def create_route(
 
     conn = get_connection()
     cursor = conn.cursor()
+    
+    cursor.execute(
+    """
+    EXEC drishtee_mis..usp_get_new_route_name_by_block_code ?
+    """,
+    block_id
+)
+
+    row = cursor.fetchone()
+
+    if not row:
+        raise ValueError(
+            "Unable to generate route name for the selected block."
+        )
+
+    route_name = str(row[0])
 
     try:
         # -------------------------------------------------
@@ -238,5 +253,36 @@ def create_route(
         # Close Connection
         # -------------------------------------------------
 
+        cursor.close()
+        conn.close()
+        
+        
+# =====================================================
+# NEW ROUTE NAME
+# =====================================================
+
+def get_new_route_name(block_code):
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(
+            """
+            EXEC drishtee_mis..usp_get_new_route_name_by_block_code ?
+            """,
+            block_code
+        )
+
+        row = cursor.fetchone()
+
+        if not row:
+            raise ValueError(
+                "Unable to generate route name for the selected block."
+            )
+
+        return str(row[0])
+
+    finally:
         cursor.close()
         conn.close()

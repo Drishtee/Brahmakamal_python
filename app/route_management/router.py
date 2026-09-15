@@ -18,6 +18,7 @@ from app.route_management.service import (
     get_route_offices,
     get_route_villages,
     create_route,
+    get_new_route_name
 )
 
 
@@ -205,7 +206,6 @@ def create_new_route(
     try:
 
         create_route(
-            route_name=request.route_name,
             village_ids=village_ids,
             user_id=email,
             block_id=request.block_code,
@@ -227,3 +227,58 @@ def create_new_route(
         success=True,
         message="Route created successfully."
     )
+    
+# =====================================================
+# NEW ROUTE NAME
+# =====================================================
+
+@router.get(
+    "/route-name/{block_code}"
+)
+def route_name(
+    block_code: int,
+    user=Depends(auth_required)
+):
+
+    require_route_access(user)
+
+    try:
+
+        return {
+            "route_name": get_new_route_name(block_code)
+        }
+
+    except Exception as exc:
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unable to generate route name: {str(exc)}"
+        )
+        
+        
+# =====================================================
+# NEW ROUTE NAME
+# =====================================================
+
+@router.get(
+    "/route-name/{block_code}"
+)
+def route_name(
+    block_code: int,
+    user=Depends(auth_required)
+):
+
+    require_route_access(user)
+
+    try:
+
+        return {
+            "route_name": get_new_route_name(block_code)
+        }
+
+    except Exception as exc:
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unable to generate route name: {str(exc)}"
+        )
