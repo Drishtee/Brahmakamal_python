@@ -24,6 +24,7 @@ from app.geo.physical_routes import (
 
 import os
 from urllib.parse import urlsplit, urlunsplit
+from app.geo.service import check_route_access
 
 router = APIRouter(
     prefix="/geo",
@@ -301,3 +302,24 @@ def get_physical_routes_geojson(
     return generate_physical_routes_geojson(
         block_codes
     )
+    
+    
+    
+# =====================================================
+# ROUTE ACCESS
+# =====================================================
+
+@router.get("/route-access")
+def route_access(
+    user=Depends(auth_required)
+):
+    email = ""
+
+    if isinstance(user, dict):
+        email = user.get("email", "")
+
+    has_access = check_route_access(email)
+
+    return {
+        "route_access": has_access
+    }

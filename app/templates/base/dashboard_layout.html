@@ -385,7 +385,8 @@ body {
 
   .filters select,
   .multi-block-btn,
-  .clear-btn {
+  .clear-btn,
+  .view-routes-btn {
     width: 100%;
   }
 
@@ -513,7 +514,41 @@ body {
 
   background: #ff7800;
 }
+/* =========================
+   VIEW ROUTES BUTTON
+========================= */
 
+.view-routes-btn {
+    width: 120px;
+    height: 40px;
+    padding: 0 16px;
+    margin-left: auto;
+    background: #1D9E75;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    line-height: 1;
+    text-align: center;
+    box-sizing: border-box;
+    transition: 0.2s;
+}
+
+.view-routes-btn + .view-routes-btn {
+  margin-left: 0;
+}
+
+
+.view-routes-btn:hover {
+  opacity: 0.92;
+}
 </style>
 
 </head>
@@ -628,8 +663,8 @@ body {
   </option>
 
   <option value="physical_vatika">
-  Physical Vatika
-</option>
+    Physical Vatika
+  </option>
 
   <option value="routes">
     Virtual Routes
@@ -640,16 +675,32 @@ body {
   </option>
 </select>
 
-  <!-- RESET -->
-  <button
-    class="clear-btn"
-    onclick="resetFilters()"
-  >
+<!-- RESET -->
+<button
+  class="clear-btn"
+  onclick="resetFilters()"
+>
+  Clear
+</button>
 
-    Clear
-
-  </button>
-
+<!-- VIEW ROUTES -->
+<button
+  type="button"
+  id="viewRoutesBtn"
+  class="view-routes-btn"
+  style="display: none;"
+>
+  Add Route
+</button>
+<!-- EDIT ROUTE -->
+<button
+  type="button"
+  id="editRouteBtn"
+  class="view-routes-btn"
+  style="display: none;"
+>
+  Edit Route
+</button>
 </div>
 
 

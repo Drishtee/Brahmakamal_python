@@ -3,6 +3,8 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from app.auth.router import router as auth_router
 from app.geo.router import router as geo_router
+from app.route_management.router import router as route_management_router
+from app.route_edit.router import router as route_edit_router
 
 app = FastAPI()
 
@@ -22,3 +24,6 @@ def root():
 
 app.include_router(auth_router)
 app.include_router(geo_router)
+
+app.include_router(route_management_router)
+app.include_router(route_edit_router)

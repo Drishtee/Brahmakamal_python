@@ -352,3 +352,27 @@ def get_voronoi_geojson(block_code):
     return generate_voronoi_geojson(
         block_code
     )
+    
+    
+def check_route_access(email):
+    if not email:
+        return False
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT 1
+        FROM dbo.TblRouteAccess
+        WHERE Email = ?
+          AND IsActive = 1
+        """,
+        email.strip()
+    )
+
+    result = cursor.fetchone()
+
+    conn.close()
+
+    return result is not None
