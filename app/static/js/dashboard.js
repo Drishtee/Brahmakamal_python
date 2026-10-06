@@ -109,60 +109,104 @@ function renderTerritories(
 
 function renderBlocks(data) {
 
-  const container =
-    document.getElementById(
-      "territoryContainer"
-    );
+    const container =
+        document.getElementById(
+            "territoryContainer"
+        );
 
-  const header =
-    document.getElementById(
-      "territoryHeader"
-    );
+    const header =
+        document.getElementById(
+            "territoryHeader"
+        );
 
-  const empty =
-    document.getElementById(
-      "emptyState"
-    );
+    const empty =
+        document.getElementById(
+            "emptyState"
+        );
 
-  container.innerHTML = "";
+    container.innerHTML = "";
 
-  if (!data || data.length === 0) {
+    if (!data || data.length === 0) {
 
-    empty.style.display = "block";
+        empty.style.display = "block";
 
-    return;
-  }
+        return;
+    }
 
-  empty.style.display = "none";
+    empty.style.display = "none";
 
-  header.style.gridTemplateColumns =
-    "1fr 2fr 1fr";
 
-  header.innerHTML = `
-    <div>Block Code</div>
-    <div>Block Name</div>
-    <div>Population</div>
-  `;
+    /*
+       Show CSP column only for
+       CSP-authorized users.
+    */
 
-  data.forEach(b => {
+    const showCSP =
+        cspAccess === true;
 
-    const row =
-      document.createElement("div");
 
-    row.className =
-      "territory-row";
+    if (showCSP) {
 
-    row.style.gridTemplateColumns =
-      "1fr 2fr 1fr";
+        header.style.gridTemplateColumns =
+            "1fr 2fr 1fr 1fr";
 
-    row.innerHTML = `
-      <div>${b.block_code || "-"}</div>
-      <div>${b.block_name || "-"}</div>
-      <div>${b.population || "-"}</div>
-    `;
+        header.innerHTML = `
+            <div>Block Code</div>
+            <div>Block Name</div>
+            <div>Population</div>
+            <div>CSP</div>
+        `;
 
-    container.appendChild(row);
-  });
+    } else {
+
+        header.style.gridTemplateColumns =
+            "1fr 2fr 1fr";
+
+        header.innerHTML = `
+            <div>Block Code</div>
+            <div>Block Name</div>
+            <div>Population</div>
+        `;
+    }
+
+
+    data.forEach(b => {
+
+        const row =
+            document.createElement("div");
+
+        row.className =
+            "territory-row";
+
+
+        if (showCSP) {
+
+            row.style.gridTemplateColumns =
+                "1fr 2fr 1fr 1fr";
+
+            row.innerHTML = `
+                <div>${b.block_code ?? "-"}</div>
+                <div>${b.block_name ?? "-"}</div>
+                <div>${b.population ?? "-"}</div>
+                <div>${b.csp_count ?? "-"}</div>
+            `;
+
+        } else {
+
+            row.style.gridTemplateColumns =
+                "1fr 2fr 1fr";
+
+            row.innerHTML = `
+                <div>${b.block_code ?? "-"}</div>
+                <div>${b.block_name ?? "-"}</div>
+                <div>${b.population ?? "-"}</div>
+            `;
+        }
+
+
+        container.appendChild(row);
+
+    });
 }
 
 
@@ -814,11 +858,33 @@ function handleDistrictChange(
 
   if (!distCode) return;
 
+  /*
+     Clear existing map layers
+     before loading the new district.
+  */
+
+  clearCSPLayer();
+
+  clearVoronoiLayer();
+
+  clearVatikaBoundary();
+
+  clearMultiBlockLayer();
+
+  clearRouteLayer();
+
+  clearPhysicalRouteLayer();
+
+  /*
+     Load blocks for the
+     newly selected district.
+  */
+
   loadBlocks(distCode);
 
   const selectedOption =
     dropdown.options[
-    dropdown.selectedIndex
+      dropdown.selectedIndex
     ];
 
   const lat =
@@ -841,48 +907,99 @@ function handleDistrictChange(
   }
 }
 
-
 /* =========================
    LOAD BLOCKS
 ========================= */
 
 async function loadBlocks(
-  distCode
+    distCode
 ) {
 
-  try {
+    try {
 
-    if (!distCode) return;
+        if (!distCode) return;
 
-    const res = await fetch(
-      `/geo/blocks?dist_code=${distCode}`
-    );
 
-    const data =
-      await res.json();
+        /*
+           Always load the original
+           block data first.
+        */
 
-    console.log(
-      "Blocks:",
-      data
-    );
+        const res = await fetch(
+            `/geo/blocks?dist_code=${distCode}`
+        );
 
-    renderBlocks(
-      data
-    );
+        const data =
+            await res.json();
 
-    renderMultiBlockOptions(
-      data
-    );
 
-  } catch (error) {
+        console.log(
+            "Blocks:",
+            data
+        );
 
-    console.error(
-      "Blocks API Error:",
-      error
-    );
-  }
+
+        /*
+           CSP users get additional
+           block-wise CSP counts.
+        */
+
+        if (cspAccess === true) {
+
+            const cspData =
+                await loadCSPBlockCounts(
+                    distCode
+                );
+
+
+            /*
+               Map CSP counts by block code.
+            */
+
+            const cspMap =
+                new Map(
+                    cspData.map(item => [
+                        Number(item.block_code),
+                        item.csp_count
+                    ])
+                );
+
+
+            /*
+               Do NOT filter blocks.
+               Add CSP count only where
+               available.
+            */
+
+            data.forEach(block => {
+
+                const blockCode =
+                    Number(block.block_code);
+
+                block.csp_count =
+                    cspMap.has(blockCode)
+                        ? cspMap.get(blockCode)
+                        : null;
+
+            });
+
+        }
+
+
+        renderBlocks(data);
+
+        renderMultiBlockOptions(data);
+
+
+    } catch (error) {
+
+        console.error(
+            "Blocks API Error:",
+            error
+        );
+
+    }
 }
-
 
 /* =========================
    LOAD VILLAGES
@@ -1048,6 +1165,8 @@ document.addEventListener(
   "DOMContentLoaded",
 
   async function () {
+
+    await checkCSPAccess();
 
     await loadStates();
 
@@ -1241,6 +1360,8 @@ if (editRouteBtn) {
           selectedBlocks.length === 0
         ) {
 
+          clearCSPLayer();
+
           clearVoronoiLayer();
 
           clearVatikaBoundary();
@@ -1257,40 +1378,58 @@ if (editRouteBtn) {
    VATIKA MODE
 ========================= */
 
-        if (
-          viewType &&
-          viewType.toLowerCase() ===
-          "vatika"
-        ) {
+if (
+    viewType &&
+    viewType.toLowerCase() ===
+    "vatika"
+) {
 
-          clearRouteLayer();
+    clearRouteLayer();
 
-          clearPhysicalRouteLayer();
+    clearPhysicalRouteLayer();
 
-          clearBlockMarker();
+    clearBlockMarker();
 
-          const blockCodes =
-            selectedBlocks.join(",");
+    const blockCodes =
+        selectedBlocks.join(",");
 
-          console.log(
-            "Voronoi Block Codes:",
+    console.log(
+        "Voronoi Block Codes:",
+        blockCodes
+    );
+
+    clearMultiBlockLayer();
+
+    /*
+       Existing Virtual Vatika flow
+    */
+
+    loadVoronoi(
+        blockCodes,
+        false
+    );
+
+    loadVatikas(
+        blockCodes,
+        false
+    );
+
+    /*
+       CSP overlay
+       Only for CSP-authorized users
+    */
+
+    clearCSPLayer();
+
+    if (cspAccess === true) {
+
+        loadCSPMarkers(
             blockCodes
-          );
+        );
+    }
 
-          clearMultiBlockLayer();
-
-          loadVoronoi(
-            blockCodes,
-            false
-          );
-
-          loadVatikas(
-            blockCodes,
-            false
-          );
-
-          return;
-        }
+    return;
+}
 
         /* =========================
    PHYSICAL VATIKA MODE
@@ -1301,6 +1440,8 @@ if (editRouteBtn) {
           viewType.toLowerCase() ===
           "physical_vatika"
         ) {
+
+          clearCSPLayer();
 
           clearRouteLayer();
 
@@ -1351,6 +1492,8 @@ if (editRouteBtn) {
           "routes"
         ) {
 
+          clearCSPLayer();
+
           clearVoronoiLayer();
 
           clearVatikaBoundary();
@@ -1396,6 +1539,8 @@ if (editRouteBtn) {
           "physical_routes"
         ) {
 
+          clearCSPLayer();
+
           clearVoronoiLayer();
 
           clearVatikaBoundary();
@@ -1431,6 +1576,8 @@ if (editRouteBtn) {
         /* =========================
            DEFAULT
         ========================= */
+
+        clearCSPLayer();
 
         clearVoronoiLayer();
 
