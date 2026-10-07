@@ -1,29 +1,30 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class CSPResponse(BaseModel):
-    bank: str | None = None
-    csp_code: str | None = None
-    csp_name: str | None = None
+    bank: Optional[str] = None
+    csp_code: Optional[str] = None
+    csp_name: Optional[str] = None
 
-    state: str | None = None
-    territory: str | None = None
-    district: str | None = None
-    block: str | None = None
+    state: Optional[str] = None
+    territory: Optional[str] = None
+    district: Optional[str] = None
+    block: Optional[str] = None
 
-    village_id: int | None = None
-    village_name: str | None = None
+    village_id: Optional[int] = None
+    village_name: Optional[str] = None
 
-    vatika_id: int | None = None
-    physical_vatika_id: int | None = None
-    vatika: str | None = None
+    vatika_id: Optional[int] = None
+    physical_vatika_id: Optional[int] = None
+    vatika: Optional[str] = None
 
-    block_code: int | None = None
-    block_name: str | None = None
+    block_code: Optional[int] = None
+    block_name: Optional[str] = None
 
-    bhk_block_code: int | None = None
-    status: str | None = None
-    branch: str | None = None
+    bhk_block_code: Optional[int] = None
+    status: Optional[str] = None
+    branch: Optional[str] = None
 
-    csp_lat: float | None = None
-    csp_long: float | None = None
+    csp_lat: Optional[float] = None
+    csp_long: Optional[float] = None

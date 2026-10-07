@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class LoginRequest(BaseModel):
     username: str
@@ -6,5 +7,5 @@ class LoginRequest(BaseModel):
 
 class UserResponse(BaseModel):
     success: bool
-    email: str | None = None
-    message: str | None = None
+    email: Optional[str] = None
+    message: Optional[str] = None
