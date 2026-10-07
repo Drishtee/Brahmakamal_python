@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from app.auth.middleware import auth_required
 from app.csp_view.permissions import has_csp_access
@@ -54,7 +55,7 @@ def csp_block_counts(
         )
         
         
-@router.get("/csps", response_model=list[CSPResponse])
+@router.get("/csps", response_model=List[CSPResponse])
 def csp_list(
     block_codes: str = Query(...),
     user=Depends(auth_required)
