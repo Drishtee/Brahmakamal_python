@@ -1,7 +1,8 @@
 const VATIKA_LABEL_ZOOM = 12;
 
 let vatikaLegend = null;
-
+let cspLegendData = [];
+let showVatikaLegend = false;
 
 /* =========================
    VATIKA LABELS
@@ -56,29 +57,183 @@ function addVatikaLegend() {
         );
 
       div.innerHTML = `
+        <div id="vatika-summary">
 
-        <div class="legend-title">
-          Vatika Types
+          <div class="legend-title">
+            Vatika Types
+          </div>
+
+          <div class="legend-item">
+            <span class="legend-color active"></span>
+            Active Vatika's
+          </div>
+
+          <div class="legend-item">
+            <span class="legend-color virtual"></span>
+            Virtual Vatika's
+          </div>
+
         </div>
 
-        <div class="legend-item">
-          <span class="legend-color active"></span>
-          Active Vatika's
+        <div id="csp-summary"
+             style="display: none;">
         </div>
-
-        <div class="legend-item">
-          <span class="legend-color virtual"></span>
-          Virtual Vatika's
-        </div>
-
       `;
 
       return div;
     };
 
   vatikaLegend.addTo(map);
+
+  /*
+     Apply current Vatika visibility.
+  */
+  updateVatikaLegendVisibility(
+    showVatikaLegend
+  );
+
+  /*
+     Re-apply CSP data if it already exists.
+  */
+  updateCSPLegend(cspLegendData);
 }
 
+/* =========================
+   TOGGLE VATIKA LEGEND
+========================= */
+
+function updateVatikaLegendVisibility(show) {
+
+  showVatikaLegend = show;
+
+  if (!vatikaLegend || !map) {
+    return;
+  }
+
+  const vatikaSummary =
+    document.getElementById("vatika-summary");
+
+  if (!vatikaSummary) {
+    return;
+  }
+
+  vatikaSummary.style.display =
+    show ? "block" : "none";
+}
+
+/* =========================
+   UPDATE CSP LEGEND
+========================= */
+
+function updateCSPLegend(data) {
+
+  /*
+     Always store the latest CSP data.
+  */
+  cspLegendData =
+    Array.isArray(data) ? data : [];
+
+
+  /* =========================
+     NO CSP DATA
+  ========================= */
+
+  if (cspLegendData.length === 0) {
+
+    if (vatikaLegend && map) {
+
+      const cspSummary =
+        document.getElementById(
+          "csp-summary"
+        );
+
+      if (cspSummary) {
+        cspSummary.innerHTML = "";
+        cspSummary.style.display = "none";
+      }
+    }
+
+    return;
+  }
+
+
+  /* =========================
+     CREATE LEGEND IF NEEDED
+  ========================= */
+
+  if (!vatikaLegend && map) {
+    addVatikaLegend();
+  }
+
+
+  if (!vatikaLegend || !map) {
+    return;
+  }
+
+
+  const cspSummary =
+    document.getElementById(
+      "csp-summary"
+    );
+
+  if (!cspSummary) {
+    return;
+  }
+
+
+  /* =========================
+     CALCULATE BLOCK COUNTS
+  ========================= */
+
+  const blockCounts = {};
+
+  cspLegendData.forEach(function (csp) {
+
+    const blockName =
+      csp.block_name ||
+      "Unknown Block";
+
+    if (!blockCounts[blockName]) {
+      blockCounts[blockName] = 0;
+    }
+
+    blockCounts[blockName]++;
+  });
+
+
+  /* =========================
+     BUILD CSP SUMMARY
+  ========================= */
+
+  let html = `
+    <div class="legend-divider"></div>
+
+    <div class="legend-title">
+      CSP Summary
+    </div>
+
+    <div class="legend-item">
+      <b>Total CSPs:</b>&nbsp;
+      ${cspLegendData.length}
+    </div>
+  `;
+
+
+  Object.keys(blockCounts)
+    .sort()
+    .forEach(function (blockName) {
+
+      html += `
+        <div class="legend-item">
+          ${blockName}: ${blockCounts[blockName]}
+        </div>
+      `;
+    });
+
+
+  cspSummary.innerHTML = html;
+  cspSummary.style.display = "block";
+}
 
 /* =========================
    REMOVE VATIKA LEGEND
@@ -113,14 +268,28 @@ function renderVoronoiLayer(
     !geojson ||
     !geojson.features ||
     geojson.features.length === 0
-  ) {
+) {
 
     console.log(
-      "No Voronoi polygons"
+        "No Voronoi polygons"
     );
 
+    /*
+       No Voronoi means no Vatika section.
+       CSP legend can still be displayed.
+    */
+    updateVatikaLegendVisibility(false);
+
+    /*
+       If CSP data has already arrived,
+       make sure the CSP legend is displayed.
+    */
+    if (cspLegendData.length > 0) {
+        updateCSPLegend(cspLegendData);
+    }
+
     return;
-  }
+}
 
 
   /* =========================
@@ -364,9 +533,13 @@ function renderVoronoiLayer(
      LEGEND
   ========================= */
 
-  addVatikaLegend();
+  showVatikaLegend = true;
 
-  updateVatikaLabels();
+addVatikaLegend();
+
+updateVatikaLegendVisibility(true);
+
+updateVatikaLabels();
 
 }
 

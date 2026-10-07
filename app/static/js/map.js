@@ -9,6 +9,9 @@ let blockMarker = null;
 let voronoiLayer = null;
 let vatikaBoundaryLayer = null;
 let multiBlockLayer = null;
+
+let cspLayer = null;
+
 let routeLayer = null;
 let routeLegend = null;
 
@@ -210,6 +213,122 @@ function clearMultiBlockLayer() {
     multiBlockLayer = null;
   }
 }
+
+/* =========================
+   CLEAR CSP LAYER
+========================= */
+
+function clearCSPLayer() {
+
+    if (cspLayer && map.hasLayer(cspLayer)) {
+        map.removeLayer(cspLayer);
+    }
+
+    cspLayer = null;
+
+    if (typeof updateCSPLegend === "function") {
+        updateCSPLegend([]);
+    }
+}
+
+/* =========================
+   CSP CUSTOM ICON
+========================= */
+
+function createCSPIcon() {
+
+    return L.icon({
+
+        iconUrl: "/static/images/csp_marker.png",
+
+        iconSize: [45, 45],
+
+        iconAnchor: [22, 45],
+
+        tooltipAnchor: [0, -40]
+
+    });
+}
+
+
+/* =========================
+   RENDER CSP MARKERS
+========================= */
+
+function renderCSPMarkers(data) {
+
+    clearCSPLayer();
+
+    if (!data || data.length === 0) {
+        console.log("No CSP markers");
+        updateCSPLegend([]);
+        return;
+    }
+
+    cspLayer = L.layerGroup();
+
+    const cspIcon = createCSPIcon();
+
+    data.forEach(function (csp) {
+
+        const lat = parseFloat(csp.csp_lat);
+        const lng = parseFloat(csp.csp_long);
+
+        if (
+            isNaN(lat) ||
+            isNaN(lng) ||
+            lat === 0 ||
+            lng === 0
+        ) {
+            console.warn(
+                "Invalid CSP coordinates:",
+                csp
+            );
+            return;
+        }
+
+        const marker =
+            L.marker(
+                [lat, lng],
+                {
+                    icon: cspIcon
+                }
+            );
+
+        marker.bindTooltip(
+            `
+                <div class="csp-tooltip">
+                    <div>
+                        <b>Bank:</b>
+                        ${csp.bank || "-"}
+                    </div>
+
+                    <div>
+                        <b>CSP Code:</b>
+                        ${csp.csp_code || "-"}
+                    </div>
+
+                    <div>
+                        <b>CSP Name:</b>
+                        ${csp.csp_name || "-"}
+                    </div>
+                </div>
+            `,
+            {
+                direction: "top",
+                offset: [0, -35],
+                sticky: true
+            }
+        );
+
+        cspLayer.addLayer(marker);
+    });
+
+    cspLayer.addTo(map);
+
+    updateCSPLegend(data);
+}
+
 /* =========================
    CLEAR ROUTES
 ========================= */
@@ -281,6 +400,8 @@ function resetMap() {
 
   clearMultiBlockLayer();
 
+  clearCSPLayer();
+
   clearRouteLayer();
 
   clearPhysicalRouteLayer();
@@ -314,6 +435,8 @@ clearVatikaBoundary();
 clearRouteLayer();
 
 clearPhysicalRouteLayer();
+
+clearCSPLayer();
 
 clearMultiBlockLayer();
 
