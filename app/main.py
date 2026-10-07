@@ -1,29 +1,62 @@
 from fastapi import FastAPI, HTTPException, Request
+
 from fastapi.responses import RedirectResponse
+
 from fastapi.staticfiles import StaticFiles
+
 from app.auth.router import router as auth_router
+
 from app.geo.router import router as geo_router
+
 from app.route_management.router import router as route_management_router
+
 from app.route_edit.router import router as route_edit_router
+
+from app.csp_view.router import router as csp_view_router
+
 
 app = FastAPI()
 
+
 # Handle auth redirects
 @app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
+async def http_exception_handler(
+    request: Request,
+    exc: HTTPException
+):
     if exc.status_code == 307 and "Location" in exc.headers:
-        return RedirectResponse(url=exc.headers["Location"])
-    from fastapi.responses import JSONResponse
-    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+        return RedirectResponse(
+            url=exc.headers["Location"]
+        )
 
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+    from fastapi.responses import JSONResponse
+
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail}
+    )
+
+
+app.mount(
+    "/static",
+    StaticFiles(directory="app/static"),
+    name="static"
+)
+
 
 @app.get("/")
 def root():
-    return RedirectResponse(url="/auth/login")
+    return RedirectResponse(
+        url="/auth/login"
+    )
+
 
 app.include_router(auth_router)
+
 app.include_router(geo_router)
 
 app.include_router(route_management_router)
+
 app.include_router(route_edit_router)
+
+app.include_router(csp_view_router)
