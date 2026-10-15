@@ -1431,55 +1431,66 @@ if (
     return;
 }
 
-        /* =========================
+/* =========================
    PHYSICAL VATIKA MODE
 ========================= */
 
-        if (
-          viewType &&
-          viewType.toLowerCase() ===
-          "physical_vatika"
-        ) {
+if (
+    viewType &&
+    viewType.toLowerCase() ===
+    "physical_vatika"
+) {
 
-          clearCSPLayer();
+    clearCSPLayer();
 
-          clearRouteLayer();
+    clearRouteLayer();
 
-          clearPhysicalRouteLayer();
+    clearPhysicalRouteLayer();
 
-          clearBlockMarker();
+    clearBlockMarker();
 
-          const blockCodes =
-            selectedBlocks.join(",");
+    const blockCodes =
+        selectedBlocks.join(",");
 
-          console.log(
-            "Physical Vatika Block Codes:",
+    console.log(
+        "Physical Vatika Block Codes:",
+        blockCodes
+    );
+
+    clearMultiBlockLayer();
+
+    /*
+       Load the complete Voronoi GeoJSON,
+       but render only physical Vatikas.
+    */
+    loadVoronoi(
+        blockCodes,
+        true
+    );
+
+    /*
+       Load Vatika data and show only
+       is_physical = 1 records in table.
+    */
+    loadVatikas(
+        blockCodes,
+        true
+    );
+
+    /*
+       CSP overlay
+       Only for CSP-authorized users.
+    */
+    if (cspAccess === true) {
+
+        loadCSPMarkers(
             blockCodes
-          );
+        );
 
-          clearMultiBlockLayer();
+    }
 
-          /*
-            Load the complete Voronoi GeoJSON,
-            but render only physical Vatikas.
-          */
-          loadVoronoi(
-            blockCodes,
-            true
-          );
-
-          /*
-            Load Vatika data and show only
-            is_physical = 1 records in table.
-          */
-          loadVatikas(
-            blockCodes,
-            true
-          );
-
-          return;
-        }
-
+    return;
+}
 
 
         /* =========================
