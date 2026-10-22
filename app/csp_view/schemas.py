@@ -23,6 +23,7 @@ class CSPResponse(BaseModel):
 
     bhk_block_code: int | None = None
     status: str | None = None
+    csp_status: str | None = None
     branch: str | None = None
 
     csp_lat: float | None = None
