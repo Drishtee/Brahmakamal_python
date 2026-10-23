@@ -127,112 +127,120 @@ function updateVatikaLegendVisibility(show) {
 
 function updateCSPLegend(data) {
 
-  /*
-     Always store the latest CSP data.
-  */
-  cspLegendData =
-    Array.isArray(data) ? data : [];
+    // Always store the latest CSP data.
+    cspLegendData = Array.isArray(data) ? data : [];
 
+    /* =========================
+       NO CSP DATA
+    ========================= */
 
-  /* =========================
-     NO CSP DATA
-  ========================= */
+    if (cspLegendData.length === 0) {
+        if (vatikaLegend && map) {
+            const cspSummary =
+                document.getElementById("csp-summary");
 
-  if (cspLegendData.length === 0) {
+            if (cspSummary) {
+                cspSummary.innerHTML = "";
+                cspSummary.style.display = "none";
+            }
+        }
 
-    if (vatikaLegend && map) {
-
-      const cspSummary =
-        document.getElementById(
-          "csp-summary"
-        );
-
-      if (cspSummary) {
-        cspSummary.innerHTML = "";
-        cspSummary.style.display = "none";
-      }
+        return;
     }
 
-    return;
-  }
+    /* =========================
+       CREATE LEGEND IF NEEDED
+    ========================= */
 
-
-  /* =========================
-     CREATE LEGEND IF NEEDED
-  ========================= */
-
-  if (!vatikaLegend && map) {
-    addVatikaLegend();
-  }
-
-
-  if (!vatikaLegend || !map) {
-    return;
-  }
-
-
-  const cspSummary =
-    document.getElementById(
-      "csp-summary"
-    );
-
-  if (!cspSummary) {
-    return;
-  }
-
-
-  /* =========================
-     CALCULATE BLOCK COUNTS
-  ========================= */
-
-  const blockCounts = {};
-
-  cspLegendData.forEach(function (csp) {
-
-    const blockName =
-      csp.block_name ||
-      "Unknown Block";
-
-    if (!blockCounts[blockName]) {
-      blockCounts[blockName] = 0;
+    if (!vatikaLegend && map) {
+        addVatikaLegend();
     }
 
-    blockCounts[blockName]++;
-  });
+    if (!vatikaLegend || !map) {
+        return;
+    }
 
+    const cspSummary =
+        document.getElementById("csp-summary");
 
-  /* =========================
-     BUILD CSP SUMMARY
-  ========================= */
+    if (!cspSummary) {
+        return;
+    }
 
-  let html = `
-    <div class="legend-divider"></div>
+    /* =========================
+       CALCULATE BLOCK COUNTS
+    ========================= */
 
-    <div class="legend-title">
-      CSP Summary
-    </div>
+    const blockCounts = {};
 
-    <div class="legend-item">
-      <b>Total CSPs:</b>&nbsp;
-      ${cspLegendData.length}
-    </div>
-  `;
+    let totalActive = 0;
 
+    cspLegendData.forEach(function (csp) {
 
-  Object.keys(blockCounts)
-    .sort()
-    .forEach(function (blockName) {
+        const blockName =
+            csp.block_name || "Unknown Block";
 
-      html += `
-        <div class="legend-item">
-          ${blockName}: ${blockCounts[blockName]}
-        </div>
-      `;
+        if (!blockCounts[blockName]) {
+            blockCounts[blockName] = {
+                active: 0,
+                total: 0
+            };
+        }
+
+        blockCounts[blockName].total++;
+
+        const isActive =
+            String(csp.csp_status || "").trim().toUpperCase() === "A";
+
+        if (isActive) {
+            blockCounts[blockName].active++;
+            totalActive++;
+        }
     });
 
+    /* =========================
+       BUILD CSP SUMMARY
+    ========================= */
 
-  cspSummary.innerHTML = html;
-  cspSummary.style.display = "block";
+    const totalCSPs = cspLegendData.length;
+    const totalInactive = totalCSPs - totalActive;
+
+    let html = `
+        <div class="legend-divider"></div>
+
+        <div class="legend-title">
+            CSP Summary
+        </div>
+
+        <div class="legend-item">
+            <b>Total CSPs:</b>&nbsp; ${totalCSPs}
+        </div>
+
+        <div class="legend-item">
+            <b>Active CSPs:</b>&nbsp; ${totalActive}
+        </div>
+
+        <div class="legend-item">
+            <b>Inactive CSPs:</b>&nbsp; ${totalInactive}
+        </div>
+    `;
+
+    Object.keys(blockCounts)
+        .sort()
+        .forEach(function (blockName) {
+
+            const counts = blockCounts[blockName];
+
+            html += `
+                <div class="legend-item">
+                    ${blockName}
+                    (${counts.active}/${counts.total})
+                </div>
+            `;
+        });
+
+    cspSummary.innerHTML = html;
+    cspSummary.style.display = "block";
 }
 
 /* =========================

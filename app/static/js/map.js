@@ -232,21 +232,18 @@ function clearCSPLayer() {
 }
 
 /* =========================
-   CSP CUSTOM ICON
+   CSP CUSTOM ICONS
 ========================= */
 
-function createCSPIcon() {
-
+function createCSPIcon(isActive) {
     return L.icon({
-
-        iconUrl: "/static/images/csp_marker.png",
+        iconUrl: isActive
+            ? "/static/images/csp_marker.png"
+            : "/static/images/csp_marker_inactive.png",
 
         iconSize: [45, 45],
-
         iconAnchor: [22, 45],
-
         tooltipAnchor: [0, -40]
-
     });
 }
 
@@ -256,7 +253,6 @@ function createCSPIcon() {
 ========================= */
 
 function renderCSPMarkers(data) {
-
     clearCSPLayer();
 
     if (!data || data.length === 0) {
@@ -267,10 +263,7 @@ function renderCSPMarkers(data) {
 
     cspLayer = L.layerGroup();
 
-    const cspIcon = createCSPIcon();
-
     data.forEach(function (csp) {
-
         const lat = parseFloat(csp.csp_lat);
         const lng = parseFloat(csp.csp_long);
 
@@ -280,20 +273,24 @@ function renderCSPMarkers(data) {
             lat === 0 ||
             lng === 0
         ) {
-            console.warn(
-                "Invalid CSP coordinates:",
-                csp
-            );
+            console.warn("Invalid CSP coordinates:", csp);
             return;
         }
 
-        const marker =
-            L.marker(
-                [lat, lng],
-                {
-                    icon: cspIcon
-                }
-            );
+        // Only status A is considered active.
+        const isActive =
+            String(csp.csp_status || "").trim().toUpperCase() === "A";
+
+        const cspIcon = createCSPIcon(isActive);
+
+        const marker = L.marker(
+            [lat, lng],
+            {
+                icon: cspIcon
+            }
+        );
+
+        const cspStatus = isActive ? "Active" : "Inactive";
 
         marker.bindTooltip(
             `
@@ -311,6 +308,16 @@ function renderCSPMarkers(data) {
                     <div>
                         <b>CSP Name:</b>
                         ${csp.csp_name || "-"}
+                    </div>
+
+                    <div>
+                        <b>Block Name:</b>
+                        ${csp.block_name || "-"}
+                    </div>
+
+                    <div>
+                        <b>CSP Status:</b>
+                        ${cspStatus}
                     </div>
                 </div>
             `,
