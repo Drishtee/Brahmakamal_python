@@ -11,45 +11,7 @@ def get_csp_counts_by_district(district_code):
             district_code
         )
 
-        columns = [
-            col[0]
-            for col in cursor.description
-        ]
-
-        rows = cursor.fetchall()
-
-        result = []
-
-        for row in rows:
-            data = dict(zip(columns, row))
-
-            result.append({
-                "block_code": data.get("block_code"),
-                "csp_count": data.get("csp_count")
-            })
-
-        return result
-
-    finally:
-        cursor.close()
-        conn.close()
-        
-        
-def get_csp_counts_by_district(district_code):
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    try:
-        cursor.execute(
-            "EXEC usp_get_csp_count_by_district ?",
-            district_code
-        )
-
-        columns = [
-            col[0]
-            for col in cursor.description
-        ]
-
+        columns = [col[0] for col in cursor.description]
         rows = cursor.fetchall()
 
         result = []
@@ -84,11 +46,7 @@ def get_csps_by_block_codes(block_codes):
             block_code_string
         )
 
-        columns = [
-            col[0]
-            for col in cursor.description
-        ]
-
+        columns = [col[0] for col in cursor.description]
         rows = cursor.fetchall()
 
         result = []
@@ -118,6 +76,7 @@ def get_csps_by_block_codes(block_codes):
 
                 "bhk_block_code": data.get("bhk_block_code"),
                 "status": data.get("Status"),
+                "csp_status": data.get("csp_status"),
                 "branch": data.get("Branch"),
 
                 "csp_lat": data.get("csp_lat"),
