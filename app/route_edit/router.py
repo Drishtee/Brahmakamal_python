@@ -19,7 +19,9 @@ from app.route_edit.service import (
     get_available_route_villages,
     update_route,
 )
-
+from app.route_management.household_capping import (
+    get_block_household_capping,
+)
 
 router = APIRouter(
     prefix="/route-edit",
@@ -178,3 +180,24 @@ def edit_route(
         success=True,
         message="Route updated successfully."
     )
+    
+# =====================================================
+# HOUSEHOLD CAPPING
+# =====================================================
+@router.get("/household-capping/{block_code}")
+def household_capping(
+    block_code: int,
+    user=Depends(auth_required)
+):
+    get_authorized_email(user)
+
+    try:
+        return get_block_household_capping(
+            block_code
+        )
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unable to fetch household limits: {str(exc)}"
+        )

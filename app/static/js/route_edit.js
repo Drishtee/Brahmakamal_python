@@ -2,8 +2,9 @@
    ROUTE EDIT
    ========================================================= */
 
-const MIN_HOUSEHOLDS = 7500;
-const MAX_HOUSEHOLDS = 10000;
+let MIN_HOUSEHOLDS = 7500;
+let MAX_HOUSEHOLDS = 10000;
+let householdCappingLoaded = false;
 const COMPANY = "DDCL";
 
 
@@ -770,6 +771,19 @@ async function handleBlockChange() {
 
     resetVillageState();
 
+    householdCappingLoaded = false;
+    MIN_HOUSEHOLDS = 7500;
+    MAX_HOUSEHOLDS = 10000;
+    updateRouteSummary();
+    updateUpdateRouteButton();
+
+    const requiredRangeElement = getElement("requiredHouseholdRange");
+
+if (requiredRangeElement) {
+    requiredRangeElement.textContent =
+        "Required range: 7,500 – 10,000 HH";
+}
+
 
     if (!blockCode) {
         return;
@@ -778,10 +792,39 @@ async function handleBlockChange() {
 
     try {
 
-        const routes =
-            await fetchRouteEditAPI(
-                `/route-edit/routes/${blockCode}`
-            );
+        const [routes, householdCapping] = await Promise.all([
+            fetchRouteEditAPI(
+                `/route-edit/routes/${encodeURIComponent(blockCode)}`
+            ),
+            fetchRouteEditAPI(
+                `/route-edit/household-capping/${encodeURIComponent(blockCode)}`
+            )
+        ]);
+
+        const minimumHouseholds = Number(householdCapping.min_households);
+        const maximumHouseholds = Number(householdCapping.max_households);
+
+        if (
+            !Number.isFinite(minimumHouseholds) ||
+            !Number.isFinite(maximumHouseholds) ||
+            minimumHouseholds < 0 ||
+            maximumHouseholds < minimumHouseholds
+        ) {
+            throw new Error("The block's household limits are invalid.");
+        }
+
+        MIN_HOUSEHOLDS = minimumHouseholds;
+        MAX_HOUSEHOLDS = maximumHouseholds;
+        householdCappingLoaded = true;
+
+        const requiredRangeElement = getElement("requiredHouseholdRange");
+
+if (requiredRangeElement) {
+requiredRangeElement.textContent =
+`Required range: ${formatNumber(MIN_HOUSEHOLDS)} – ${formatNumber(MAX_HOUSEHOLDS)} HH`;
+}
+
+
 
         populateDropdown(
             routeDropdown,
@@ -795,13 +838,17 @@ async function handleBlockChange() {
 
     } catch (error) {
 
+        householdCappingLoaded = false;
+        updateRouteSummary();
+        updateUpdateRouteButton();
+
         console.error(
-            "Route List API Error:",
+            "Route List / Household Capping API Error:",
             error
         );
 
         showPageError(
-            "Unable to load routes."
+            error.message || "Unable to load routes and household limits."
         );
     }
 }
@@ -1731,6 +1778,12 @@ function updateHouseholdValidation(
     validationElement.className =
         "validation-message";
 
+    if (!householdCappingLoaded) {
+        validationElement.classList.add("invalid");
+        validationElement.textContent =
+            "Household limits are not loaded for this block.";
+        return;
+    }
 
     if (
         totalHouseholds >= MIN_HOUSEHOLDS &&
@@ -1805,6 +1858,7 @@ function updateUpdateRouteButton() {
 
 
     const validHouseholds =
+        householdCappingLoaded &&
         totalHouseholds >= MIN_HOUSEHOLDS &&
         totalHouseholds <= MAX_HOUSEHOLDS;
 
@@ -1837,12 +1891,15 @@ async function updateRoute() {
 
 
     if (
+        !householdCappingLoaded ||
         totalHouseholds < MIN_HOUSEHOLDS ||
         totalHouseholds > MAX_HOUSEHOLDS
     ) {
 
         alert(
-            `Total households must be between ${formatNumber(MIN_HOUSEHOLDS)} and ${formatNumber(MAX_HOUSEHOLDS)}.`
+            householdCappingLoaded
+                ? `Total households must be between ${formatNumber(MIN_HOUSEHOLDS)} and ${formatNumber(MAX_HOUSEHOLDS)}.`
+                : "Household limits are not loaded. Please reselect the block and try again."
         );
 
         return;
