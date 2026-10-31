@@ -7,8 +7,9 @@
    CONSTANTS
 ========================================================= */
 
-const MIN_HOUSEHOLDS = 7500;
-const MAX_HOUSEHOLDS = 10000;
+let MIN_HOUSEHOLDS = 7500;
+let MAX_HOUSEHOLDS = 10000;
+let householdCappingLoaded = false;
 
 
 /* =========================================================
@@ -600,6 +601,13 @@ async function handleRouteBlockChange() {
     resetVillages();
     resetRouteName();
 
+    // Require the selected block's limits to load before route creation.
+    householdCappingLoaded = false;
+    MIN_HOUSEHOLDS = 7500;
+    MAX_HOUSEHOLDS = 10000;
+    updateHouseholdSummary();
+    updateCreateRouteButton();
+
     if (!blockCode) {
 
         updateCreateRouteButton();
@@ -779,6 +787,30 @@ async function loadRouteVillages(
             );
 
 
+        const minimumHouseholds = Number(data.minimum_households);
+        const maximumHouseholds = Number(data.maximum_households);
+
+        if (
+            !Number.isFinite(minimumHouseholds) ||
+            !Number.isFinite(maximumHouseholds) ||
+            minimumHouseholds < 0 ||
+            maximumHouseholds < minimumHouseholds
+        ) {
+            throw new Error("The block's household limits are invalid.");
+        }
+
+        MIN_HOUSEHOLDS = minimumHouseholds;
+        MAX_HOUSEHOLDS = maximumHouseholds;
+        householdCappingLoaded = true;
+
+        const requiredRangeElement =
+    document.getElementById("requiredHouseholdRange");
+
+if (requiredRangeElement) {
+    requiredRangeElement.textContent =
+        `${formatNumber(MIN_HOUSEHOLDS)} – ${formatNumber(MAX_HOUSEHOLDS)}`;
+}
+
         routeVillages =
             Array.isArray(data.villages)
                 ? data.villages
@@ -810,6 +842,7 @@ async function loadRouteVillages(
         routeVillages = [];
 
         selectedVillageIds.clear();
+        householdCappingLoaded = false;
 
 
         villageList.innerHTML = `
@@ -1167,6 +1200,13 @@ function updateHouseholdSummary() {
         "household-validation";
 
 
+    if (!householdCappingLoaded) {
+        validationElement.classList.add("neutral");
+        validationElement.textContent =
+            "Load the selected block's household limits before selecting villages.";
+        return;
+    }
+
     if (selectedVillages.length === 0) {
 
         validationElement.classList.add(
@@ -1303,6 +1343,7 @@ function updateCreateRouteButton() {
         Boolean(district) &&
         Boolean(block) &&
         Boolean(routeName) &&
+        householdCappingLoaded &&
         selectedVillageIds.size > 0 &&
         validHouseholds;
 
@@ -1824,8 +1865,16 @@ function resetVillages() {
     routeVillages = [];
 
     selectedVillageIds.clear();
+    householdCappingLoaded = false;
+    MIN_HOUSEHOLDS = 7500;
+    MAX_HOUSEHOLDS = 10000;
 
+    const requiredRangeElement =
+    document.getElementById("requiredHouseholdRange");
 
+if (requiredRangeElement) {
+    requiredRangeElement.textContent = "7,500 – 10,000";
+}
     const villageSearch =
         document.getElementById(
             "villageSearch"

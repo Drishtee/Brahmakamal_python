@@ -20,7 +20,9 @@ from app.route_management.service import (
     create_route,
     get_new_route_name
 )
-
+from app.route_management.household_capping import (
+    get_block_household_capping,
+)
 
 router = APIRouter(
     prefix="/route-management",
@@ -136,20 +138,35 @@ def offices(
 # =====================================================
 # VILLAGES
 # =====================================================
-
 @router.get("/villages/{block_code}")
 def villages(
     block_code: int,
     user=Depends(auth_required)
 ):
-
     require_route_access(user)
 
-    return {
-        "villages": get_route_villages(block_code),
-        "minimum_households": 7500,
-        "maximum_households": 10000
-    }
+    try:
+        village_data = get_route_villages(block_code)
+
+        household_capping = get_block_household_capping(
+            block_code
+        )
+
+        return {
+            "villages": village_data,
+            "minimum_households": household_capping[
+                "min_households"
+            ],
+            "maximum_households": household_capping[
+                "max_households"
+            ]
+        }
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unable to fetch villages and household limits: {str(exc)}"
+        )
 
 
 # =====================================================
